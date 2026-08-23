@@ -1,0 +1,37 @@
+{
+  "overall_r1_recall": 0.8980721393034826,
+  "overall_final_recall": 0.9781666666666665,
+  "overall_recall_lift": 0.0800945273631839,
+  "per_attack_type": {
+    "account_takeover": {
+      "r1_recall": 0.838,
+      "final_recall": 0.962,
+      "cases": 74
+    },
+    "synthetic_identity": {
+      "r1_recall": 0.909,
+      "final_recall": 0.985,
+      "cases": 66
+    },
+    "refund_fraud": {
+      "r1_recall": 0.923,
+      "final_recall": 0.978,
+      "cases": 65
+    },
+    "card_testing": {
+      "r1_recall": 0.955,
+      "final_recall": 0.99,
+      "cases": 66
+    },
+    "prompt_injection_scam": {
+      "r1_recall": 0.879,
+      "final_recall": 0.975,
+      "cases": 66
+    },
+    "deepfake_kyc": {
+      "r1_recall": 0.892,
+      "final_recall": 0.981,
+      "cases": 65
+    }
+  }
+}
