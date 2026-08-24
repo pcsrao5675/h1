@@ -90,6 +90,10 @@ class PredictRequest(BaseModel):
     transaction: Optional[Dict[str, Any]] = None
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
+
+@app.get("/")
+def root():
+    return {"message": "FraudLens API is running", "docs": "/docs", "status": "healthy"}
 @app.get("/health")
 def health():
     seed_found = SEED_PATH.exists()
@@ -238,3 +242,4 @@ def metrics():
         "round1_values":   [d["round1_recall"] for d in chart_data],
         "final_values":    [d["final_recall"] for d in chart_data],
     }
+
