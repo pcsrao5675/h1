@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FraudLens - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#29332b",
+                        "on-primary-fixed-variant": "#00522c",
+                        "on-primary": "#00391d",
+                        "tertiary": "#fdfbff",
+                        "on-tertiary": "#2e3039",
+                        "surface-container-high": "#232c25",
+                        "tertiary-fixed": "#e1e1ed",
+                        "on-error": "#690005",
+                        "on-tertiary-fixed-variant": "#454650",
+                        "surface": "#0c150f",
+                        "secondary-fixed-dim": "#4cd6ff",
+                        "secondary-container": "#14d1ff",
+                        "surface-container-low": "#141e17",
+                        "secondary": "#a6e6ff",
+                        "surface-bright": "#323c33",
+                        "primary-fixed": "#5bffa1",
+                        "surface-container-highest": "#2d372f",
+                        "on-surface": "#dae5da",
+                        "on-secondary-fixed": "#001f28",
+                        "surface-variant": "#2d372f",
+                        "on-tertiary-fixed": "#191b23",
+                        "surface-container-lowest": "#07100a",
+                        "primary": "#f2fff1",
+                        "on-primary-container": "#00713f",
+                        "on-error-container": "#ffdad6",
+                        "background": "#0c150f",
+                        "on-secondary-fixed-variant": "#004e60",
+                        "on-secondary-container": "#00566b",
+                        "on-tertiary-container": "#60626c",
+                        "tertiary-fixed-dim": "#c5c6d1",
+                        "secondary-fixed": "#b7eaff",
+                        "outline": "#849586",
+                        "on-primary-fixed": "#00210e",
+                        "tertiary-container": "#dedeea",
+                        "primary-container": "#00ff94",
+                        "surface-dim": "#0c150f",
+                        "error-container": "#93000a",
+                        "on-surface-variant": "#b9cbbb",
+                        "inverse-surface": "#dae5da",
+                        "on-secondary": "#003543",
+                        "surface-tint": "#00e383",
+                        "primary-fixed-dim": "#00e383",
+                        "inverse-primary": "#006d3c",
+                        "on-background": "#dae5da",
+                        "surface-container": "#18221a",
+                        "outline-variant": "#3b4b3e",
+                        "error": "#ffb4ab"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "lg": "24px",
+                        "margin": "32px",
+                        "md": "16px",
+                        "xl": "48px",
+                        "gutter": "20px",
+                        "sm": "8px",
+                        "xs": "4px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Hanken Grotesk", "sans-serif"],
+                        "display-lg": ["Geist", "sans-serif"],
+                        "data-mono": ["Geist", "monospace"],
+                        "headline-sm": ["Geist", "sans-serif"],
+                        "label-caps": ["Geist", "sans-serif"],
+                        "body-md": ["Hanken Grotesk", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
+                        "data-mono": ["14px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
+                        "headline-sm": ["24px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0A0C10; color: #dae5da; }
+        .glass-panel { background: #12141C; border: 1px solid rgba(255,255,255,0.05); }
+        .glass-overlay { background: rgba(18, 20, 28, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .glow-active { box-shadow: 0px 0px 15px rgba(0, 255, 148, 0.2); }
+        .glow-error { box-shadow: 0px 0px 15px rgba(255, 180, 171, 0.2); }
+        .text-glow { text-shadow: 0 0 10px rgba(0, 255, 148, 0.5); }
+        .text-glow-error { text-shadow: 0 0 10px rgba(255, 180, 171, 0.5); }
+        .neon-accent { border-left: 2px solid #00ff94; }
+        .bg-gradient-subtle { background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%); }
+        
+        /* Custom scrollbar for data tables/lists if needed */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #2d372f; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b4b3e; }
+    </style>
+</head>
+<body class="font-body-md bg-background text-on-background antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-[0px_0px_15px_rgba(0,227,131,0.1)] fixed top-0 w-full z-40 flex justify-between items-center px-lg h-xl hidden md:flex">
+<div class="flex items-center gap-lg">
+<span class="font-display-lg text-headline-sm tracking-tighter text-primary-fixed">FraudLens</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-high border border-white/5 rounded pl-10 pr-4 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary-fixed focus:shadow-[0_0_10px_rgba(183,234,255,0.2)] transition-all w-64 placeholder-on-surface-variant/50" placeholder="Search logs, alerts..." type="text"/>
+</div>
+<button class="text-primary-fixed border border-primary-fixed rounded px-4 py-1.5 font-label-caps text-label-caps hover:bg-primary-fixed/10 transition-colors flex items-center gap-sm">
+                Protected
+            </button>
+<div class="flex items-center gap-sm border-l border-white/5 pl-md ml-xs">
+<button class="text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 active:scale-95 transition-transform p-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 active:scale-95 transition-transform p-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">terminal</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 active:scale-95 transition-transform p-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">support</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-white/10 ml-2">
+<img alt="Security Analyst Profile" class="w-full h-full object-cover" data-alt="A futuristic, high-tech security analyst avatar, glowing cyan accents, dark metallic background, sharp sleek rendering, professional cybersecurity context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC31EI5W2E5vv2Sd_BiGAwoBlMTzaJpCHR8HHgAfk_akRasa10H42I7k0hboJNPNgR7EO2VFRM-L3Xodk-g_4dMhLjNpwnDk5oh4nfjDfZiFQz6ErUZh9VEYzDjkUXvFuUdhKcRXE1fJZq2rxAFPobwj8eLeUu9Eu8aGnoQQv9_Zcu_sJB66RrHWArqSE1wFkA2DuYNbsXNxTBCwH3EyHHaWAAP4GcpTrUJBu65sBAXUMhw1fSJ0iTG4A"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="bg-surface-container dark:bg-surface-container border-r border-white/5 fixed left-0 h-full w-64 z-50 flex flex-col py-lg hidden md:flex top-xl">
+<div class="px-md mb-xl flex flex-col gap-xs mt-lg">
+<!-- Assuming title moved to top nav for cohesion, but keeping structure if needed. Leaving subtle header here -->
+<div class="flex items-center gap-sm px-2">
+<div class="w-6 h-6 rounded bg-primary-fixed/20 flex items-center justify-center border border-primary-fixed/30">
+<span class="material-symbols-outlined text-[14px] text-primary-fixed">security</span>
+</div>
+<div>
+<div class="font-label-caps text-label-caps text-on-surface-variant tracking-wider">Vigilance Engine</div>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<!-- Dashboard (Active) -->
+<a class="text-primary-fixed bg-primary-container/10 border-l-2 border-primary-fixed flex items-center gap-md px-md py-sm font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Dashboard
+            </a>
+<!-- Live Logs (Inactive) -->
+<a class="text-on-surface-variant flex items-center gap-md px-md py-sm font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">security_update_good</span>
+                Live Logs
+            </a>
+<!-- Analytics (Inactive) -->
+<a class="text-on-surface-variant flex items-center gap-md px-md py-sm font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+                Analytics
+            </a>
+<!-- Settings (Inactive) -->
+<a class="text-on-surface-variant flex items-center gap-md px-md py-sm font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all hover:translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto px-md flex flex-col gap-sm">
+<button class="w-full bg-primary-fixed/10 text-primary-fixed border border-primary-fixed/50 rounded py-2 font-label-caps text-label-caps hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors flex justify-center items-center gap-xs glow-active">
+                 Deploy Patch
+                 <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
+</button>
+<div class="flex flex-col gap-xs mt-sm pt-sm border-t border-white/5">
+<a class="text-on-surface-variant flex items-center gap-md px-2 py-1.5 font-label-caps text-label-caps hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">menu_book</span>
+                    Docs
+                </a>
+<a class="text-on-surface-variant flex items-center gap-md px-2 py-1.5 font-label-caps text-label-caps hover:text-error transition-colors" href="#">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">logout</span>
+                    Logout
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="md:ml-64 mt-[64px] p-gutter min-h-screen">
+<!-- Header area for the dashboard content -->
+<div class="flex justify-between items-end mb-lg">
+<div>
+<h1 class="font-headline-sm text-headline-sm text-on-surface mb-1">System Overview</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Real-time threat detection and mitigation metrics.</p>
+</div>
+<div class="flex gap-sm">
+<span class="font-data-mono text-data-mono text-secondary-fixed flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
+                    SYNCED: JUST NOW
+                </span>
+</div>
+</div>
+<!-- 3-Column Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Section 1: Overview & Stats (Left Column - 3 cols) -->
+<section class="col-span-1 md:col-span-3 flex flex-col gap-gutter">
+<!-- Metric Cards -->
+<div class="grid grid-cols-2 gap-sm">
+<div class="glass-panel p-md rounded-lg bg-gradient-subtle flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-primary-fixed/5 rounded-bl-full blur-xl group-hover:bg-primary-fixed/10 transition-colors"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-2 z-10">Total Cases</span>
+<span class="font-display-lg text-[32px] text-on-surface leading-none z-10 font-data-mono tracking-tight">599</span>
+</div>
+<div class="glass-panel p-md rounded-lg bg-gradient-subtle flex flex-col relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-16 h-16 bg-secondary-fixed/5 rounded-bl-full blur-xl group-hover:bg-secondary-fixed/10 transition-colors"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-2 z-10">Accuracy</span>
+<span class="font-display-lg text-[32px] text-secondary-fixed text-glow leading-none z-10 font-data-mono tracking-tight">93.1%</span>
+</div>
+</div>
+<div class="glass-panel p-md rounded-lg flex flex-col gap-sm">
+<div class="flex justify-between items-center border-b border-white/5 pb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Fraud Detected</span>
+<span class="font-data-mono text-data-mono text-error font-bold">324</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface-variant">Legitimate</span>
+<span class="font-data-mono text-data-mono text-primary-fixed font-bold">275</span>
+</div>
+<!-- Minimalist bar visualization -->
+<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden mt-1 flex">
+<div class="h-full bg-error" style="width: 54%"></div>
+<div class="h-full bg-primary-fixed" style="width: 46%"></div>
+</div>
+</div>
+<!-- Monitored Attack Types -->
+<div class="glass-panel rounded-lg flex flex-col flex-1">
+<div class="p-md border-b border-white/5 flex items-center justify-between">
+<h2 class="font-label-caps text-label-caps text-on-surface">Monitored Vectors</h2>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">radar</span>
+</div>
+<ul class="flex flex-col p-2">
+<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Account Takeover</span>
+<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
+</li>
+<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Deepfake KYC</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+</li>
+<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Synthetic Identity</span>
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+</li>
+<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Tx Scrubbing</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+</li>
+<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Device Spoofing</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+</li>
+<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
+<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Social Engineering</span>
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+</li>
+</ul>
+</div>
+</section>
+<!-- Section 2: Live Detection (Center Column - 5 cols) -->
+<section class="col-span-1 md:col-span-5 flex flex-col">
+<div class="glass-overlay rounded-xl border-t border-t-white/10 p-lg flex flex-col h-full glow-active relative overflow-hidden">
+<!-- Tech background accent -->
+<div class="absolute inset-0 opacity-[0.02] pointer-events-none" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
+<div class="flex justify-between items-center mb-lg relative z-10">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-primary-fixed mb-1 flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">my_location</span>
+                                Active Inspection
+                            </span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface-container border border-white/10 rounded px-3 py-1.5 pr-8 font-label-caps text-label-caps text-on-surface focus:outline-none focus:border-primary-fixed focus:ring-1 focus:ring-primary-fixed cursor-pointer transition-colors">
+<option>Select Sample Case</option>
+<option>Case #TRX-992A (High Risk)</option>
+<option>Case #AUTH-441B (Medium Risk)</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[16px]">arrow_drop_down</span>
+</div>
+</div>
+<div class="flex flex-col gap-md flex-1 relative z-10">
+<div class="flex flex-col gap-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant pl-1">Transaction Narrative</label>
+<div class="bg-surface-container-low border border-white/5 rounded p-sm min-h-[80px] font-data-mono text-data-mono text-on-surface/80 flex items-start">
+                                &gt; Awaiting sample selection. Streaming realtime event logs..._
+                            </div>
+</div>
+<div class="flex gap-lg items-center justify-center py-lg my-auto border-y border-white/5">
+<!-- Prediction Box -->
+<div class="flex flex-col items-center justify-center p-md border border-error/30 bg-error/5 rounded-lg w-48 shadow-[inset_0_0_20px_rgba(255,180,171,0.05)]">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-2">PREDICTION</span>
+<span class="font-display-lg text-headline-sm text-error text-glow-error font-bold tracking-widest">FRAUD</span>
+</div>
+<!-- Confidence Gauge -->
+<div class="relative w-32 h-32 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.05)" stroke-width="6"></circle>
+<circle class="drop-shadow-[0_0_8px_rgba(0,255,148,0.6)]" cx="50" cy="50" fill="none" r="45" stroke="#00ff94" stroke-dasharray="283" stroke-dashoffset="11.32" stroke-width="6"></circle>
+</svg>
+<div class="absolute flex flex-col items-center">
+<span class="font-display-lg text-[28px] text-primary-fixed text-glow font-data-mono leading-none">96%</span>
+<span class="font-label-caps text-[9px] text-on-surface-variant mt-1">CONFIDENCE</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-xs mt-auto">
+<label class="font-label-caps text-label-caps text-on-surface-variant pl-1 flex items-center gap-xs">
+<span class="material-symbols-outlined text-[14px]">psychology</span>
+                                AI Reasoning Engine
+                            </label>
+<div class="bg-surface-container-highest border-l-2 border-error p-md font-body-sm text-body-sm text-on-surface rounded-r relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-r from-error/5 to-transparent pointer-events-none"></div>
+                                "Anomalous transaction velocity detected from a high-risk IP range combined with device fingerprint mismatch."
+                            </div>
+</div>
+</div>
+<div class="mt-md pt-md border-t border-white/5 flex justify-end gap-sm relative z-10">
+<button class="px-4 py-2 font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors border border-white/10 rounded hover:bg-white/5">
+                            Ignore
+                        </button>
+<button class="px-4 py-2 font-label-caps text-label-caps text-background bg-primary-fixed rounded shadow-[0_0_15px_rgba(0,255,148,0.4)] hover:bg-primary-fixed-dim transition-colors flex items-center gap-xs font-bold">
+                            Block Action
+                            <span class="material-symbols-outlined text-[16px]">block</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Section 3: Defense Metrics (Right Column - 4 cols) -->
+<section class="col-span-1 md:col-span-4 flex flex-col gap-gutter">
+<!-- Performance Comparison Card -->
+<div class="glass-panel rounded-lg p-md flex flex-col h-full">
+<div class="flex items-center justify-between mb-lg">
+<h2 class="font-label-caps text-label-caps text-on-surface">Model Performance Delta</h2>
+<span class="material-symbols-outlined text-[16px] text-secondary-fixed">trending_up</span>
+</div>
+<!-- Legend -->
+<div class="flex gap-md mb-md border-b border-white/5 pb-sm">
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 bg-surface-bright border border-white/20 rounded-sm"></span>
+<span class="font-label-caps text-[9px] text-on-surface-variant">Round 1 Training</span>
+</div>
+<div class="flex items-center gap-xs">
+<span class="w-2 h-2 bg-secondary-fixed rounded-sm shadow-[0_0_5px_rgba(183,234,255,0.5)]"></span>
+<span class="font-label-caps text-[9px] text-secondary-fixed">Final AI Model</span>
+</div>
+</div>
+<!-- Bar Chart Area (Custom built with HTML/Tailwind) -->
+<div class="flex-1 flex flex-col gap-md justify-center mt-sm">
+<!-- Synthetic Identity -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-surface text-[13px]">Synthetic Identity</span>
+<span class="font-data-mono text-data-mono text-secondary-fixed text-[12px]">+8%</span>
+</div>
+<div class="relative h-6 w-full border-l border-white/10 flex flex-col justify-center gap-1">
+<!-- Grid lines subtle -->
+<div class="absolute inset-0 flex justify-between pointer-events-none px-2">
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+</div>
+<div class="h-1.5 bg-surface-bright rounded-r" style="width: 90%;"></div>
+<div class="h-1.5 bg-secondary-fixed rounded-r relative z-10 shadow-[0_0_8px_rgba(183,234,255,0.3)]" style="width: 98%;">
+<span class="absolute -right-7 -top-2 font-data-mono text-[10px] text-on-surface-variant">98%</span>
+</div>
+</div>
+</div>
+<!-- Deepfake KYC -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-surface text-[13px]">Deepfake KYC</span>
+<span class="font-data-mono text-data-mono text-secondary-fixed text-[12px]">+9%</span>
+</div>
+<div class="relative h-6 w-full border-l border-white/10 flex flex-col justify-center gap-1">
+<div class="absolute inset-0 flex justify-between pointer-events-none px-2">
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+</div>
+<div class="h-1.5 bg-surface-bright rounded-r" style="width: 85%;"></div>
+<div class="h-1.5 bg-secondary-fixed rounded-r relative z-10 shadow-[0_0_8px_rgba(183,234,255,0.3)]" style="width: 94%;">
+<span class="absolute -right-7 -top-2 font-data-mono text-[10px] text-on-surface-variant">94%</span>
+</div>
+</div>
+</div>
+<!-- Account Takeover -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-end mb-1">
+<span class="font-body-sm text-body-sm text-on-surface text-[13px]">Account Takeover</span>
+<span class="font-data-mono text-data-mono text-secondary-fixed text-[12px]">+8%</span>
+</div>
+<div class="relative h-6 w-full border-l border-white/10 flex flex-col justify-center gap-1">
+<div class="absolute inset-0 flex justify-between pointer-events-none px-2">
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+<div class="w-px h-full border-l border-dashed border-white/5"></div>
+</div>
+<div class="h-1.5 bg-surface-bright rounded-r" style="width: 88%;"></div>
+<div class="h-1.5 bg-secondary-fixed rounded-r relative z-10 shadow-[0_0_8px_rgba(183,234,255,0.3)]" style="width: 96%;">
+<span class="absolute -right-7 -top-2 font-data-mono text-[10px] text-on-surface-variant">96%</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-md pt-sm border-t border-white/5">
+<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-tight">
+                            Latest iteration shows significant defense gains against deepfake verification attempts. Model weights locked.
+                        </p>
+</div>
+</div>
+</section>
+</div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const sumRes = await fetch('/summary');
+            if(sumRes.ok) {
+                const sumData = await sumRes.json();
+                document.body.innerHTML = document.body.innerHTML.replace(/>599</g, '>' + sumData.total_evaluated + '<');
+                document.body.innerHTML = document.body.innerHTML.replace(/>93.1%</g, '>' + sumData.accuracy_pct + '%<');
+            }
+        } catch(e) { console.error('API Error', e); }
+    });
+</script>
+</body>
+</html>

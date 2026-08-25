@@ -91,9 +91,15 @@ class PredictRequest(BaseModel):
 
 # ── Routes ─────────────────────────────────────────────────────────────────────
 
-@app.get("/")
+from fastapi.responses import HTMLResponse
+
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return {"message": "FraudLens API is running", "docs": "/docs", "status": "healthy"}
+    try:
+        with open(BASE / "index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except Exception as e:
+        return f"<html><body><h1>Error loading UI: {e}</h1></body></html>"
 @app.get("/health")
 def health():
     seed_found = SEED_PATH.exists()
@@ -242,4 +248,5 @@ def metrics():
         "round1_values":   [d["round1_recall"] for d in chart_data],
         "final_values":    [d["final_recall"] for d in chart_data],
     }
+
 
