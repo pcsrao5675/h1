@@ -1,737 +1,371 @@
-<!DOCTYPE html>
-
-<html class="dark" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>FraudLens - Dashboard</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=Hanken+Grotesk:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    "colors": {
-                        "inverse-on-surface": "#29332b",
-                        "on-primary-fixed-variant": "#00522c",
-                        "on-primary": "#00391d",
-                        "tertiary": "#fdfbff",
-                        "on-tertiary": "#2e3039",
-                        "surface-container-high": "#232c25",
-                        "tertiary-fixed": "#e1e1ed",
-                        "on-error": "#690005",
-                        "on-tertiary-fixed-variant": "#454650",
-                        "surface": "#0c150f",
-                        "secondary-fixed-dim": "#4cd6ff",
-                        "secondary-container": "#14d1ff",
-                        "surface-container-low": "#141e17",
-                        "secondary": "#a6e6ff",
-                        "surface-bright": "#323c33",
-                        "primary-fixed": "#5bffa1",
-                        "surface-container-highest": "#2d372f",
-                        "on-surface": "#dae5da",
-                        "on-secondary-fixed": "#001f28",
-                        "surface-variant": "#2d372f",
-                        "on-tertiary-fixed": "#191b23",
-                        "surface-container-lowest": "#07100a",
-                        "primary": "#f2fff1",
-                        "on-primary-container": "#00713f",
-                        "on-error-container": "#ffdad6",
-                        "background": "#0c150f",
-                        "on-secondary-fixed-variant": "#004e60",
-                        "on-secondary-container": "#00566b",
-                        "on-tertiary-container": "#60626c",
-                        "tertiary-fixed-dim": "#c5c6d1",
-                        "secondary-fixed": "#b7eaff",
-                        "outline": "#849586",
-                        "on-primary-fixed": "#00210e",
-                        "tertiary-container": "#dedeea",
-                        "primary-container": "#00ff94",
-                        "surface-dim": "#0c150f",
-                        "error-container": "#93000a",
-                        "on-surface-variant": "#b9cbbb",
-                        "inverse-surface": "#dae5da",
-                        "on-secondary": "#003543",
-                        "surface-tint": "#00e383",
-                        "primary-fixed-dim": "#00e383",
-                        "inverse-primary": "#006d3c",
-                        "on-background": "#dae5da",
-                        "surface-container": "#18221a",
-                        "outline-variant": "#3b4b3e",
-                        "error": "#ffb4ab"
-                    },
-                    "borderRadius": {
-                        "DEFAULT": "0.125rem",
-                        "lg": "0.25rem",
-                        "xl": "0.5rem",
-                        "full": "0.75rem"
-                    },
-                    "spacing": {
-                        "unit": "4px",
-                        "lg": "24px",
-                        "margin": "32px",
-                        "md": "16px",
-                        "xl": "48px",
-                        "gutter": "20px",
-                        "sm": "8px",
-                        "xs": "4px"
-                    },
-                    "fontFamily": {
-                        "body-sm": ["Hanken Grotesk", "sans-serif"],
-                        "display-lg": ["Geist", "sans-serif"],
-                        "data-mono": ["Geist", "monospace"],
-                        "headline-sm": ["Geist", "sans-serif"],
-                        "label-caps": ["Geist", "sans-serif"],
-                        "body-md": ["Hanken Grotesk", "sans-serif"]
-                    },
-                    "fontSize": {
-                        "body-sm": ["14px", { "lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400" }],
-                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-0.04em", "fontWeight": "700" }],
-                        "data-mono": ["14px", { "lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500" }],
-                        "headline-sm": ["24px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-                        "label-caps": ["11px", { "lineHeight": "1", "letterSpacing": "0.1em", "fontWeight": "700" }],
-                        "body-md": ["16px", { "lineHeight": "1.5", "letterSpacing": "0em", "fontWeight": "400" }]
-                    }
-                }
-            }
-        }
-    </script>
-<style>
-        body { background-color: #0A0C10; color: #dae5da; }
-        .glass-panel { background: #12141C; border: 1px solid rgba(255,255,255,0.05); }
-        .glass-overlay { background: rgba(18, 20, 28, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        .glow-active { box-shadow: 0px 0px 15px rgba(0, 255, 148, 0.2); }
-        .glow-error { box-shadow: 0px 0px 15px rgba(255, 180, 171, 0.2); }
-        .text-glow { text-shadow: 0 0 10px rgba(0, 255, 148, 0.5); }
-        .text-glow-error { text-shadow: 0 0 10px rgba(255, 180, 171, 0.5); }
-        .neon-accent { border-left: 2px solid #00ff94; }
-        .bg-gradient-subtle { background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0) 100%); }
-        
-        /* Custom scrollbar for data tables/lists if needed */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #2d372f; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3b4b3e; }
+﻿<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>FraudLens — GenAI Payment Fraud Shield</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <style>
+        body { background-color: #07090E; color: #DAE5DA; font-family: 'Geist', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-panel { background: #0E121A; border: 1px solid rgba(255,255,255,0.06); }
+        .glass-highlight { background: rgba(16, 22, 32, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(0, 255, 148, 0.2); }
+        .text-glow-green { text-shadow: 0 0 12px rgba(0, 255, 148, 0.5); }
+        .text-glow-red { text-shadow: 0 0 12px rgba(255, 90, 95, 0.5); }
+        .glow-box-green { box-shadow: 0 0 20px rgba(0, 255, 148, 0.15); }
+        .glow-box-red { box-shadow: 0 0 20px rgba(255, 90, 95, 0.15); }
     </style>
 </head>
-<body class="font-body-md bg-background text-on-background antialiased overflow-x-hidden">
-<!-- TopNavBar -->
-<nav class="bg-surface/80 dark:bg-surface/80 backdrop-blur-xl border-b border-white/5 shadow-[0px_0px_15px_rgba(0,227,131,0.1)] fixed top-0 w-full z-40 flex justify-between items-center px-lg h-xl hidden md:flex">
-<div class="flex items-center gap-lg">
-<span class="font-display-lg text-headline-sm tracking-tighter text-primary-fixed">FraudLens</span>
-</div>
-<div class="flex items-center gap-md">
-<div class="relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
-<input class="bg-surface-container-high border border-white/5 rounded pl-10 pr-4 py-2 text-body-sm text-on-surface focus:outline-none focus:border-secondary-fixed focus:shadow-[0_0_10px_rgba(183,234,255,0.2)] transition-all w-64 placeholder-on-surface-variant/50" placeholder="Search logs, alerts..." type="text"/>
-</div>
-<button class="text-primary-fixed border border-primary-fixed rounded px-4 py-1.5 font-label-caps text-label-caps hover:bg-primary-fixed/10 transition-colors flex items-center gap-sm">
-                Protected
-            </button>
-<div class="flex items-center gap-sm border-l border-white/5 pl-md ml-xs">
-<button class="text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 active:scale-95 transition-transform p-1">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
-</button>
-<button class="text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 active:scale-95 transition-transform p-1">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">terminal</span>
-</button>
-<button class="text-on-surface-variant hover:text-primary-fixed transition-colors duration-200 active:scale-95 transition-transform p-1">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">support</span>
-</button>
-<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-white/10 ml-2">
-<img alt="Security Analyst Profile" class="w-full h-full object-cover" data-alt="A futuristic, high-tech security analyst avatar, glowing cyan accents, dark metallic background, sharp sleek rendering, professional cybersecurity context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC31EI5W2E5vv2Sd_BiGAwoBlMTzaJpCHR8HHgAfk_akRasa10H42I7k0hboJNPNgR7EO2VFRM-L3Xodk-g_4dMhLjNpwnDk5oh4nfjDfZiFQz6ErUZh9VEYzDjkUXvFuUdhKcRXE1fJZq2rxAFPobwj8eLeUu9Eu8aGnoQQv9_Zcu_sJB66RrHWArqSE1wFkA2DuYNbsXNxTBCwH3EyHHaWAAP4GcpTrUJBu65sBAXUMhw1fSJ0iTG4A"/>
-</div>
-</div>
-</div>
-</nav>
-<!-- SideNavBar -->
-<aside class="bg-surface-container dark:bg-surface-container border-r border-white/5 fixed left-0 h-full w-64 z-50 flex flex-col py-lg hidden md:flex top-xl">
-<div class="px-md mb-xl flex flex-col gap-xs mt-lg">
-<!-- Assuming title moved to top nav for cohesion, but keeping structure if needed. Leaving subtle header here -->
-<div class="flex items-center gap-sm px-2">
-<div class="w-6 h-6 rounded bg-primary-fixed/20 flex items-center justify-center border border-primary-fixed/30">
-<span class="material-symbols-outlined text-[14px] text-primary-fixed">security</span>
-</div>
-<div>
-<div class="font-label-caps text-label-caps text-on-surface-variant tracking-wider">Vigilance Engine</div>
-</div>
-</div>
-</div>
-<nav class="flex-1 flex flex-col gap-xs">
-<!-- Dashboard (Active) -->
-<a class="text-primary-fixed bg-primary-container/10 border-l-2 border-primary-fixed flex items-center gap-md px-md py-sm font-label-caps text-label-caps" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
-                Dashboard
-            </a>
-<!-- Live Logs (Inactive) -->
-<a class="text-on-surface-variant flex items-center gap-md px-md py-sm font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all hover:translate-x-1 transition-transform" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">security_update_good</span>
-                Live Logs
-            </a>
-<!-- Analytics (Inactive) -->
-<a class="text-on-surface-variant flex items-center gap-md px-md py-sm font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all hover:translate-x-1 transition-transform" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
-                Analytics
-            </a>
-<!-- Settings (Inactive) -->
-<a class="text-on-surface-variant flex items-center gap-md px-md py-sm font-label-caps text-label-caps hover:bg-white/5 hover:text-on-surface transition-all hover:translate-x-1 transition-transform" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
-                Settings
-            </a>
-</nav>
-<div class="mt-auto px-md flex flex-col gap-sm">
-<button id="btn-deploy-patch" class="w-full bg-primary-fixed/10 text-primary-fixed border border-primary-fixed/50 rounded py-2 font-label-caps text-label-caps hover:bg-primary-fixed hover:text-on-primary-fixed transition-colors flex justify-center items-center gap-xs glow-active">
-                 Deploy Patch
-                 <span class="material-symbols-outlined text-[16px]">rocket_launch</span>
-</button>
-<div class="flex flex-col gap-xs mt-sm pt-sm border-t border-white/5">
-<a class="text-on-surface-variant flex items-center gap-md px-2 py-1.5 font-label-caps text-label-caps hover:text-on-surface transition-colors" href="#">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">menu_book</span>
-                    Docs
-                </a>
-<a class="text-on-surface-variant flex items-center gap-md px-2 py-1.5 font-label-caps text-label-caps hover:text-error transition-colors" href="#">
-<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">logout</span>
-                    Logout
-                </a>
-</div>
-</div>
-</aside>
-<!-- Main Content Canvas -->
-<main class="md:ml-64 mt-[64px] p-gutter min-h-screen">
-<!-- Header area for the dashboard content -->
-<div class="flex justify-between items-end mb-lg">
-<div>
-<h1 class="font-headline-sm text-headline-sm text-on-surface mb-1">System Overview</h1>
-<p class="font-body-sm text-body-sm text-on-surface-variant">Real-time threat detection and mitigation metrics.</p>
-</div>
-<div class="flex gap-sm">
-<span class="font-data-mono text-data-mono text-secondary-fixed flex items-center gap-xs">
-<span class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></span>
-                    SYNCED: JUST NOW
-                </span>
-</div>
-</div>
-<!-- 3-Column Grid Layout -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-<!-- Section 1: Overview & Stats (Left Column - 3 cols) -->
-<section class="col-span-1 md:col-span-3 flex flex-col gap-gutter">
-<!-- Metric Cards -->
-<div class="grid grid-cols-2 gap-sm">
-<div class="glass-panel p-md rounded-lg bg-gradient-subtle flex flex-col relative overflow-hidden group">
-<div class="absolute top-0 right-0 w-16 h-16 bg-primary-fixed/5 rounded-bl-full blur-xl group-hover:bg-primary-fixed/10 transition-colors"></div>
-<span class="font-label-caps text-label-caps text-on-surface-variant mb-2 z-10">Total Cases</span>
-<span class="font-display-lg text-[32px] text-on-surface leading-none z-10 font-data-mono tracking-tight" id="stat-total-cases">599</span>
-</div>
-<div class="glass-panel p-md rounded-lg bg-gradient-subtle flex flex-col relative overflow-hidden group">
-<div class="absolute top-0 right-0 w-16 h-16 bg-secondary-fixed/5 rounded-bl-full blur-xl group-hover:bg-secondary-fixed/10 transition-colors"></div>
-<span class="font-label-caps text-label-caps text-on-surface-variant mb-2 z-10">Accuracy</span>
-<span class="font-display-lg text-[32px] text-secondary-fixed text-glow leading-none z-10 font-data-mono tracking-tight" id="stat-accuracy">93.16%</span>
-</div>
-</div>
-<div class="glass-panel p-md rounded-lg flex flex-col gap-sm">
-<div class="flex justify-between items-center border-b border-white/5 pb-2">
-<span class="font-label-caps text-label-caps text-on-surface-variant">Fraud Detected</span>
-<span class="font-data-mono text-data-mono text-error font-bold">324</span>
-</div>
-<div class="flex justify-between items-center">
-<span class="font-label-caps text-label-caps text-on-surface-variant">Legitimate</span>
-<span class="font-data-mono text-data-mono text-primary-fixed font-bold">275</span>
-</div>
-<!-- Minimalist bar visualization -->
-<div class="w-full h-1 bg-surface-container-high rounded-full overflow-hidden mt-1 flex">
-<div class="h-full bg-error" style="width: 54%"></div>
-<div class="h-full bg-primary-fixed" style="width: 46%"></div>
-</div>
-</div>
-<!-- Monitored Attack Types -->
-<div class="glass-panel rounded-lg flex flex-col flex-1">
-<div class="p-md border-b border-white/5 flex items-center justify-between">
-<h2 class="font-label-caps text-label-caps text-on-surface">Monitored Vectors</h2>
-<span class="material-symbols-outlined text-[16px] text-on-surface-variant">radar</span>
-</div>
-<ul class="flex flex-col p-2">
-<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
-<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Account Takeover</span>
-<span class="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span>
-</li>
-<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
-<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Deepfake KYC</span>
-<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
-</li>
-<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
-<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Synthetic Identity</span>
-<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
-</li>
-<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
-<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Tx Scrubbing</span>
-<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
-</li>
-<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
-<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Device Spoofing</span>
-<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
-</li>
-<li class="flex items-center justify-between px-3 py-2 border-b border-white/5 last:border-0 group hover:bg-white/5 rounded transition-colors cursor-default">
-<span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-on-surface transition-colors">Social Engineering</span>
-<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
-</li>
-</ul>
-</div>
-</section>
-<!-- Section 2: Live Detection (Center Column - 5 cols) -->
-<section class="col-span-1 md:col-span-5 flex flex-col">
-<div class="glass-overlay rounded-xl border-t border-t-white/10 p-lg flex flex-col h-full glow-active relative overflow-hidden">
-<!-- Tech background accent -->
-<div class="absolute inset-0 opacity-[0.02] pointer-events-none" style="background-image: radial-gradient(#ffffff 1px, transparent 1px); background-size: 20px 20px;"></div>
-<div class="flex justify-between items-center mb-lg relative z-10">
-<div class="flex flex-col">
-<span class="font-label-caps text-label-caps text-primary-fixed mb-1 flex items-center gap-xs">
-<span class="material-symbols-outlined text-[14px]">my_location</span>
-                                Active Inspection
-                            </span>
-</div>
-<div class="relative">
-<select id="case-select" class="appearance-none bg-surface-container border border-white/10 rounded px-3 py-1.5 pr-8 font-label-caps text-label-caps text-on-surface focus:outline-none focus:border-primary-fixed focus:ring-1 focus:ring-primary-fixed cursor-pointer transition-colors w-full">
-<option>Select Sample Case</option>
-<option>Case #TRX-992A (High Risk)</option>
-<option>Case #AUTH-441B (Medium Risk)</option>
-</select>
-<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none text-[16px]">arrow_drop_down</span>
-</div>
-</div>
-<div class="flex flex-col gap-md flex-1 relative z-10">
-<div class="flex flex-col gap-xs">
-<label class="font-label-caps text-label-caps text-on-surface-variant pl-1">Transaction Narrative</label>
-<div id="narrative-box" class="bg-surface-container-low border border-white/5 rounded p-sm min-h-[90px] font-data-mono text-[13px] text-on-surface/90 flex flex-col justify-center leading-relaxed transition-all">Loading sample cases...</div>
-</div>
-<div class="flex gap-lg items-center justify-center py-lg my-auto border-y border-white/5">
-<!-- Prediction Box -->
-<div class="flex flex-col items-center justify-center p-md border border-error/30 bg-error/5 rounded-lg w-48 shadow-[inset_0_0_20px_rgba(255,180,171,0.05)]">
-<span class="font-label-caps text-label-caps text-on-surface-variant mb-2">PREDICTION</span>
-<span  id="prediction-badge" class="font-display-lg text-headline-sm text-error text-glow-error font-bold tracking-widest transition-all"><span id="prediction-text">FRAUD</span></span>
-</div>
-<!-- Confidence Gauge -->
-<div class="relative w-32 h-32 flex items-center justify-center">
-<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
-<circle cx="50" cy="50" fill="none" r="45" stroke="rgba(255,255,255,0.05)" stroke-width="6"></circle>
-<circle id="gauge-circle" class="drop-shadow-[0_0_8px_rgba(0,255,148,0.6)] transition-all duration-700" cx="50" cy="50" fill="none" r="45" stroke="#00ff94" stroke-dasharray="283" stroke-dashoffset="19.8" stroke-width="6"></circle>
-</svg>
-<div class="absolute flex flex-col items-center">
-<span id="confidence-text" class="font-display-lg text-[28px] text-primary-fixed text-glow font-data-mono leading-none">93%</span>
-<span class="font-label-caps text-[9px] text-on-surface-variant mt-1">CONFIDENCE</span>
-</div>
-</div>
-</div>
-<div class="flex flex-col gap-xs mt-auto">
-<label class="font-label-caps text-label-caps text-on-surface-variant pl-1 flex items-center gap-xs">
-<span class="material-symbols-outlined text-[14px]">psychology</span>
-                                AI Reasoning Engine
-                            </label>
-<div id="reasoning-box" class="bg-surface-container-highest border-l-2 border-error p-md font-body-sm text-body-sm text-on-surface rounded-r relative overflow-hidden transition-all"><div class="absolute inset-0 bg-gradient-to-r from-error/5 to-transparent pointer-events-none"></div><p id="reasoning-text">"Analyzing transaction parameters across threat surface..."</p></div>
-                                "Anomalous transaction velocity detected from a high-risk IP range combined with device fingerprint mismatch."
-                            </div>
-</div>
-</div>
-<div class="mt-md pt-md border-t border-white/5 flex justify-end gap-sm relative z-10">
-<button id="btn-ignore" class="px-4 py-2 font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors border border-white/10 rounded hover:bg-white/5">Ignore</button>
-<button id="btn-block" class="px-4 py-2 font-label-caps text-label-caps text-background bg-primary-fixed rounded shadow-[0_0_15px_rgba(0,255,148,0.4)] hover:bg-primary-fixed-dim transition-colors flex items-center gap-xs font-bold">
-                            <span id="btn-block-text">Block Action</span>
-                            <span class="material-symbols-outlined text-[16px]">block</span>
-</button>
-</div>
-</div>
-</section>
-<!-- Section 3: Defense Metrics (Right Column - 4 cols) -->
-<section class="col-span-1 md:col-span-4 flex flex-col gap-gutter">
-<!-- Performance Comparison Card -->
-<div class="glass-panel rounded-lg p-md flex flex-col h-full">
-<div class="flex items-center justify-between mb-lg">
-<h2 class="font-label-caps text-label-caps text-on-surface">Model Performance Delta</h2>
-<span class="material-symbols-outlined text-[16px] text-secondary-fixed">trending_up</span>
-</div>
-<!-- Legend -->
-<div class="flex gap-md mb-md border-b border-white/5 pb-sm">
-<div class="flex items-center gap-xs">
-<span class="w-2 h-2 bg-surface-bright border border-white/20 rounded-sm"></span>
-<span class="font-label-caps text-[9px] text-on-surface-variant">Round 1 Training</span>
-</div>
-<div class="flex items-center gap-xs">
-<span class="w-2 h-2 bg-secondary-fixed rounded-sm shadow-[0_0_5px_rgba(183,234,255,0.5)]"></span>
-<span class="font-label-caps text-[9px] text-secondary-fixed">Final AI Model</span>
-</div>
-</div>
-<!-- Bar Chart Area (Custom built with HTML/Tailwind) -->
-<div id="metrics-chart-container" class="flex-1 flex flex-col gap-md justify-center mt-sm"></div>
-<div class="mt-md pt-sm border-t border-white/5">
-<p class="font-body-sm text-body-sm text-on-surface-variant text-[12px] leading-tight">
-                            Latest iteration shows significant defense gains against deepfake verification attempts. Model weights locked.
-                        </p>
-</div>
-</div>
-</section>
-</div>
-</main>
+<body class="min-h-screen flex flex-col antialiased">
 
-
-<!-- Interactive Modal & Toast Layer -->
-<div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-<div id="app-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center hidden p-4">
-    <div class="glass-panel border border-white/10 rounded-xl max-w-2xl w-full p-lg shadow-2xl relative">
-        <button id="modal-close" class="absolute top-4 right-4 text-on-surface-variant hover:text-white transition-colors">
-            <span class="material-symbols-outlined">close</span>
-        </button>
-        <h3 id="modal-title" class="font-headline-sm text-headline-sm text-primary-fixed mb-md">Modal Title</h3>
-        <div id="modal-content" class="text-body-sm text-on-surface-variant max-h-[60vh] overflow-y-auto font-data-mono bg-surface-container-lowest p-md rounded border border-white/5">
-        </div>
-    </div>
-</div>
-
-<script>
-    let sampleCases = [];
-    let metricsData = null;
-    let summaryData = null;
-    let isProtected = true;
-
-    function showToast(title, message, type = 'success') {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
-        const toast = document.createElement('div');
-        const color = type === 'error' ? 'border-error text-error bg-error/10' : type === 'warning' ? 'border-secondary-fixed text-secondary-fixed bg-secondary-fixed/10' : 'border-primary-fixed text-primary-fixed bg-primary-fixed/10';
-        const icon = type === 'error' ? 'report' : type === 'warning' ? 'warning' : 'verified';
-        
-        toast.className = `pointer-events-auto glass-overlay border ${color} px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 transform translate-y-4 opacity-0 transition-all duration-300 min-w-[280px]`;
-        toast.innerHTML = `
-            <span class="material-symbols-outlined text-[20px]">${icon}</span>
-            <div class="flex flex-col">
-                <span class="font-label-caps text-label-caps font-bold">${title}</span>
-                <span class="font-body-sm text-[12px] opacity-90 text-on-surface">${message}</span>
+    <!-- Top Navigation Bar -->
+    <header class="border-b border-white/10 bg-[#0A0D14]/90 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                <span class="material-symbols-outlined text-emerald-400 text-lg">shield</span>
             </div>
-        `;
-        container.appendChild(toast);
-        
-        requestAnimationFrame(() => {
-            toast.classList.remove('translate-y-4', 'opacity-0');
-        });
-        
-        setTimeout(() => {
-            toast.classList.add('opacity-0', 'translate-y-2');
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
-    }
+            <div>
+                <span class="font-bold text-lg text-white tracking-tight">FraudLens</span>
+                <span class="text-xs text-emerald-400 font-mono ml-2 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30">GenAI Defense Loop</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-mono">
+            <div class="flex items-center gap-2 px-3 py-1 rounded bg-white/5 border border-white/10">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-zinc-300">API: <b class="text-emerald-400">ONLINE</b></span>
+            </div>
+            <a href="/docs" target="_blank" class="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 border border-white/10 px-3 py-1 rounded bg-white/5">
+                <span class="material-symbols-outlined text-sm">api</span> API Docs
+            </a>
+        </div>
+    </header>
 
-    function openModal(title, contentHtml) {
-        const modal = document.getElementById('app-modal');
-        const t = document.getElementById('modal-title');
-        const c = document.getElementById('modal-content');
-        if (modal && t && c) {
-            t.innerText = title;
-            c.innerHTML = contentHtml;
-            modal.classList.remove('hidden');
-        }
-    }
+    <!-- Main Content Area: 3 Clean Panels -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    document.getElementById('modal-close')?.addEventListener('click', () => {
-        document.getElementById('app-modal')?.classList.add('hidden');
-    });
-
-    async function loadSummary() {
-        try {
-            const res = await fetch('/summary');
-            if (!res.ok) return;
-            summaryData = await res.json();
+        <!-- ================= PANEL 1: IDENTIFY (Left - 3 Cols) ================= -->
+        <section class="lg:col-span-3 flex flex-col gap-5">
             
-            const totalEl = document.getElementById('stat-total-cases');
-            if (totalEl) totalEl.innerText = summaryData.total_evaluated || 599;
-            
-            const accEl = document.getElementById('stat-accuracy');
-            if (accEl) accEl.innerText = (summaryData.accuracy_pct || 93.16) + '%';
-
-            const fraudEl = document.getElementById('stat-fraud-cases');
-            if (fraudEl) fraudEl.innerText = summaryData.fraud_cases || 324;
-
-            const legitEl = document.getElementById('stat-legit-cases');
-            if (legitEl) legitEl.innerText = summaryData.legit_cases || 275;
-        } catch (e) {
-            console.error('Summary error:', e);
-        }
-    }
-
-    async function loadSampleAttacks() {
-        try {
-            const res = await fetch('/sample-attacks?limit=12');
-            if (!res.ok) return;
-            sampleCases = await res.json();
-            
-            const select = document.getElementById('case-select');
-            if (!select) return;
-            
-            select.innerHTML = '<option value="">-- Select Threat / Live Case --</option>';
-            sampleCases.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.case_id;
-                const formattedType = c.attack_type.replace(/_/g, ' ').toUpperCase();
-                const amt = c.amount ? ` (${c.amount} ${c.currency || 'USD'})` : '';
-                opt.innerText = `${c.case_id.toUpperCase()} • ${formattedType}${amt}`;
-                select.appendChild(opt);
-            });
-
-            if (sampleCases.length > 0) {
-                select.value = sampleCases[0].case_id;
-                inspectCase(sampleCases[0].case_id);
-            }
-        } catch (e) {
-            console.error('Sample attacks error:', e);
-        }
-    }
-
-    async function inspectCase(caseId) {
-        if (!caseId) return;
-        
-        const narrativeBox = document.getElementById('narrative-box');
-        const predBadge = document.getElementById('prediction-badge');
-        const predText = document.getElementById('prediction-text');
-        const confText = document.getElementById('confidence-text');
-        const gaugeCircle = document.getElementById('gauge-circle');
-        const reasonText = document.getElementById('reasoning-text');
-
-        if (narrativeBox) narrativeBox.innerHTML = '<span class="text-secondary-fixed animate-pulse">> Running neural fraud analysis on case ' + caseId + '...</span>';
-
-        try {
-            const res = await fetch('/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ case_id: caseId })
-            });
-
-            if (!res.ok) throw new Error('Prediction API returned status ' + res.status);
-            const data = await res.json();
-
-            if (narrativeBox) {
-                const txnInfo = data.transaction ? 
-                    `<div class="flex flex-wrap gap-2 mb-2 pb-2 border-b border-white/5 text-[11px] text-secondary-fixed">
-                        <span>AMT: <b>${data.transaction.amount || 'N/A'} ${data.transaction.currency || 'USD'}</b></span>
-                        <span>CHANNEL: <b>${(data.transaction.channel || 'ECOM').toUpperCase()}</b></span>
-                        <span>COUNTRY: <b>${data.transaction.cardholder_country || 'GLOBAL'}</b></span>
-                    </div>` : '';
-                narrativeBox.innerHTML = txnInfo + `<span>${data.narrative_snippet || 'No narrative text provided.'}</span>`;
-            }
-
-            const isFraud = data.predicted_label === 'fraud';
-            if (predBadge && predText) {
-                predText.innerText = isFraud ? 'FRAUD' : 'LEGITIMATE';
-                if (isFraud) {
-                    predBadge.className = 'font-display-lg text-headline-sm text-error text-glow-error font-bold tracking-widest transition-all';
-                    predBadge.parentElement.className = 'flex flex-col items-center justify-center p-md border border-error/30 bg-error/5 rounded-lg w-48 shadow-[inset_0_0_20px_rgba(255,180,171,0.05)]';
-                } else {
-                    predBadge.className = 'font-display-lg text-headline-sm text-primary-fixed text-glow font-bold tracking-widest transition-all';
-                    predBadge.parentElement.className = 'flex flex-col items-center justify-center p-md border border-primary-fixed/30 bg-primary-fixed/5 rounded-lg w-48 shadow-[inset_0_0_20px_rgba(0,255,148,0.05)]';
-                }
-            }
-
-            const conf = data.confidence || 0.93;
-            const confPct = Math.round(conf * 100);
-            if (confText) confText.innerText = confPct + '%';
-            if (gaugeCircle) {
-                const offset = 283 - (283 * conf);
-                gaugeCircle.style.strokeDashoffset = offset;
-                gaugeCircle.setAttribute('stroke', isFraud ? '#ffb4ab' : '#00ff94');
-            }
-
-            if (reasonText) {
-                reasonText.innerText = `"${data.reason || 'Heuristic pattern matches standard indicators.'}"`;
-            }
-
-        } catch (err) {
-            console.error('Inspection error:', err);
-            if (narrativeBox) narrativeBox.innerText = 'Error running inference: ' + err.message;
-        }
-    }
-
-    async function loadMetrics() {
-        try {
-            const res = await fetch('/metrics');
-            if (!res.ok) return;
-            metricsData = await res.json();
-
-            const container = document.getElementById('metrics-chart-container');
-            if (!container || !metricsData.per_attack_type) return;
-
-            let html = '';
-            metricsData.per_attack_type.forEach(item => {
-                html += `
-                <div class="flex flex-col gap-1 cursor-pointer hover:bg-white/5 p-1 rounded transition-colors" onclick="filterByAttack('${item.attack_type}')">
-                    <div class="flex justify-between items-end mb-1">
-                        <span class="font-body-sm text-body-sm text-on-surface text-[13px]">${item.attack_type}</span>
-                        <span class="font-data-mono text-data-mono text-secondary-fixed text-[12px]">+${item.improvement}%</span>
+            <!-- Summary Stats Card -->
+            <div class="glass-panel rounded-xl p-5">
+                <h2 class="text-xs font-mono uppercase tracking-wider text-zinc-400 mb-4 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-emerald-400">analytics</span>
+                    Evaluation Metrics
+                </h2>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="p-3 rounded-lg bg-white/[0.03] border border-white/5">
+                        <div class="text-[11px] font-mono text-zinc-400">Total Cases</div>
+                        <div id="stat-total" class="text-2xl font-mono font-bold text-white mt-1">599</div>
                     </div>
-                    <div class="relative h-6 w-full border-l border-white/10 flex flex-col justify-center gap-1">
-                        <div class="h-1.5 bg-surface-bright rounded-r" style="width: ${item.round1_recall}%;"></div>
-                        <div class="h-1.5 bg-secondary-fixed rounded-r relative z-10 shadow-[0_0_8px_rgba(183,234,255,0.3)]" style="width: ${item.final_recall}%;">
-                            <span class="absolute -right-7 -top-2 font-data-mono text-[10px] text-on-surface-variant">${item.final_recall}%</span>
-                        </div>
+                    <div class="p-3 rounded-lg bg-white/[0.03] border border-white/5">
+                        <div class="text-[11px] font-mono text-zinc-400">Accuracy</div>
+                        <div id="stat-acc" class="text-2xl font-mono font-bold text-emerald-400 text-glow-green mt-1">93.16%</div>
                     </div>
                 </div>
-                `;
-            });
-            container.innerHTML = html;
-        } catch (e) {
-            console.error('Metrics error:', e);
-        }
-    }
+                <div class="space-y-2 pt-2 border-t border-white/5 text-xs font-mono">
+                    <div class="flex justify-between text-zinc-400">
+                        <span>Fraud Cases:</span>
+                        <span id="stat-fraud" class="text-rose-400 font-bold">324</span>
+                    </div>
+                    <div class="flex justify-between text-zinc-400">
+                        <span>Legitimate Cases:</span>
+                        <span id="stat-legit" class="text-emerald-400 font-bold">275</span>
+                    </div>
+                    <div class="flex justify-between text-zinc-400">
+                        <span>Fraud F1-Score:</span>
+                        <span class="text-white font-bold">93.64%</span>
+                    </div>
+                </div>
+            </div>
 
-    window.filterByAttack = function(attackName) {
-        const clean = attackName.toLowerCase().replace(/ /g, '_');
-        const match = sampleCases.find(c => c.attack_type.toLowerCase() === clean || c.attack_type.toLowerCase().includes(clean));
-        if (match) {
-            const select = document.getElementById('case-select');
-            if (select) select.value = match.case_id;
-            inspectCase(match.case_id);
-            showToast('Vector Filter Applied', `Showing test case for ${attackName}`, 'warning');
-        } else {
-            showToast('Filter Applied', `Inspecting closest match for ${attackName}`);
-        }
-    };
+            <!-- Monitored Attack Vectors Card -->
+            <div class="glass-panel rounded-xl p-5 flex-1 flex flex-col">
+                <h2 class="text-xs font-mono uppercase tracking-wider text-zinc-400 mb-3 flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-sm text-cyan-400">radar</span>
+                    Monitored GenAI Attacks
+                </h2>
+                <p class="text-xs text-zinc-400 mb-3 leading-relaxed">Click any category to load a test scenario:</p>
+                <div id="vector-list" class="space-y-2 flex-1">
+                    <!-- Vector buttons rendered by JS -->
+                </div>
+            </div>
+        </section>
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadSummary();
-        loadSampleAttacks();
-        loadMetrics();
+        <!-- ================= PANEL 2: LIVE TEST / DEFEND (Center - 5 Cols) ================= -->
+        <section class="lg:col-span-5 flex flex-col">
+            <div class="glass-panel rounded-xl p-6 flex flex-col h-full relative">
+                
+                <!-- Panel Header -->
+                <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-5">
+                    <div>
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                            Live AI Detection Engine
+                        </h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Select a test attack or run inference</p>
+                    </div>
+                </div>
 
-        document.getElementById('case-select')?.addEventListener('change', (e) => {
-            inspectCase(e.target.value);
-        });
+                <!-- Scenario Selector Dropdown -->
+                <div class="mb-4">
+                    <label class="text-xs font-mono text-zinc-400 block mb-1.5">SELECT ATTACK SCENARIO</label>
+                    <select id="case-select" class="w-full bg-[#131722] text-sm text-zinc-200 border border-white/10 rounded-lg px-3 py-2.5 outline-none focus:border-emerald-500 transition-colors font-mono">
+                        <option value="">-- Choose Sample Attack Case --</option>
+                    </select>
+                </div>
 
-        document.getElementById('btn-block')?.addEventListener('click', () => {
-            const select = document.getElementById('case-select');
-            const caseId = select ? select.value : 'ACTIVE_TRX';
-            showToast('Threat Neutralized', `Transaction ${caseId} blocked. Gateway token revoked.`, 'error');
-        });
+                <!-- Narrative Display Area -->
+                <div class="mb-5 flex-1 flex flex-col">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label class="text-xs font-mono text-zinc-400">TRANSACTION & NARRATIVE</label>
+                        <span id="case-meta" class="text-[11px] font-mono text-cyan-400"></span>
+                    </div>
+                    <div id="narrative-box" class="flex-1 min-h-[140px] max-h-[220px] overflow-y-auto bg-[#07090E] border border-white/10 rounded-lg p-3 text-xs text-zinc-300 font-mono leading-relaxed">
+                        <span class="text-zinc-500 italic">Select a case above or click a vector on the left, then click "Run AI Detection"...</span>
+                    </div>
+                </div>
 
-        document.getElementById('btn-ignore')?.addEventListener('click', () => {
-            showToast('Exception Logged', 'Transaction marked as reviewed / exception granted.', 'warning');
-        });
+                <!-- Run AI Detection Button -->
+                <button id="btn-run-predict" class="w-full py-3 px-4 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm tracking-wide transition-all shadow-[0_0_20px_rgba(0,255,148,0.3)] flex items-center justify-center gap-2 mb-5">
+                    <span class="material-symbols-outlined text-lg">bolt</span>
+                    Run AI Detection
+                </button>
 
-        document.getElementById('btn-deploy-patch')?.addEventListener('click', () => {
-            showToast('Deploying AI Weights', 'Hot-reloading Gemini 3.5 detection pipeline... (Zero Downtime)', 'success');
-            setTimeout(() => {
-                showToast('Patch Complete', 'Vigilance Engine upgraded to Model v2.4 (97.8% Recall)', 'success');
-                loadMetrics();
-            }, 1200);
-        });
-
-        document.getElementById('btn-protected')?.parentElement?.addEventListener('click', function() {
-            isProtected = !isProtected;
-            const btnSpan = document.getElementById('btn-protected');
-            if (btnSpan) btnSpan.innerText = isProtected ? 'Protected' : 'Paused';
-            showToast('Shield Status Changed', isProtected ? 'Real-time FraudLens Shield is ACTIVE' : 'FraudLens Shield is BYPASSED', isProtected ? 'success' : 'error');
-        });
-
-        document.getElementById('nav-logs')?.parentElement?.addEventListener('click', (e) => {
-            e.preventDefault();
-            let logsHtml = '<div class="space-y-2">';
-            sampleCases.forEach((c, idx) => {
-                logsHtml += `
-                    <div class="p-2 border-b border-white/5 flex justify-between items-center hover:bg-white/5 rounded">
+                <!-- Detection Output Box (Initial ready state) -->
+                <div id="result-container" class="rounded-lg p-4 bg-white/[0.02] border border-white/5 transition-all">
+                    <div class="grid grid-cols-2 gap-4 items-center">
                         <div>
-                            <span class="text-secondary-fixed">[${new Date(Date.now() - idx*180000).toLocaleTimeString()}]</span>
-                            <span class="font-bold text-on-surface ml-2">${c.case_id}</span>
-                            <span class="text-on-surface-variant ml-2">(${c.attack_type})</span>
+                            <div class="text-[11px] font-mono text-zinc-400 mb-1">VERDICT</div>
+                            <div id="pred-badge" class="text-lg font-bold text-zinc-400 font-mono tracking-wider">AWAITING RUN</div>
                         </div>
-                        <span class="px-2 py-0.5 text-[10px] rounded ${c.label === 'fraud' ? 'bg-error/20 text-error' : 'bg-primary-fixed/20 text-primary-fixed'}">${c.label.toUpperCase()}</span>
-                    </div>
-                `;
-            });
-            logsHtml += '</div>';
-            openModal('Realtime Audit Logs (Stream: Live)', logsHtml);
-        });
-
-        document.getElementById('nav-analytics')?.parentElement?.addEventListener('click', (e) => {
-            e.preventDefault();
-            const content = `
-                <div class="space-y-4">
-                    <p class="text-on-surface">Comprehensive Model Evaluation Summary across <b>599 evaluated cases</b>:</p>
-                    <div class="grid grid-cols-2 gap-3 text-center">
-                        <div class="p-3 bg-surface-container rounded border border-white/5">
-                            <div class="text-on-surface-variant text-[11px]">FRAUD F1-SCORE</div>
-                            <div class="text-[24px] text-primary-fixed font-bold">93.64%</div>
-                        </div>
-                        <div class="p-3 bg-surface-container rounded border border-white/5">
-                            <div class="text-on-surface-variant text-[11px]">FRAUD RECALL</div>
-                            <div class="text-[24px] text-secondary-fixed font-bold">93.50%</div>
+                        <div class="text-right">
+                            <div class="text-[11px] font-mono text-zinc-400 mb-1">CONFIDENCE</div>
+                            <div id="conf-badge" class="text-lg font-bold text-zinc-400 font-mono">--%</div>
                         </div>
                     </div>
-                    <p class="text-[12px] text-on-surface-variant">Closed-loop retraining with Person B augmented cases increased overall recall from <b>89.8% to 97.8% (+8.0% lift)</b>.</p>
-                </div>
-            `;
-            openModal('FraudLens Analytics & Benchmark', content);
-        });
-
-        document.getElementById('nav-settings')?.parentElement?.addEventListener('click', (e) => {
-            e.preventDefault();
-            const content = `
-                <div class="space-y-3">
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>Backend API</span>
-                        <span class="text-primary-fixed font-bold">https://fraudlens-api.onrender.com</span>
-                    </div>
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>LLM Inference Engine</span>
-                        <span class="text-secondary-fixed font-bold">Gemini 3.5 Flash-Lite (Multi-key Pool)</span>
-                    </div>
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>Active Pipeline</span>
-                        <span class="text-on-surface font-bold">Person A/B/C Closed Loop</span>
-                    </div>
-                    <div class="flex justify-between border-b border-white/5 pb-2">
-                        <span>FastAPI Health</span>
-                        <span class="text-primary-fixed">HTTP 200 OK</span>
+                    <div class="mt-3 pt-3 border-t border-white/5">
+                        <div class="text-[11px] font-mono text-zinc-400 mb-1">AI REASONING</div>
+                        <div id="reason-text" class="text-xs text-zinc-300 italic">Click "Run AI Detection" to execute Gemini reasoning.</div>
                     </div>
                 </div>
-            `;
-            openModal('Vigilance Engine Settings', content);
-        });
 
-        const docsLink = document.getElementById('nav-docs')?.parentElement;
-        if (docsLink) {
-            docsLink.setAttribute('href', '/docs');
-            docsLink.setAttribute('target', '_blank');
+            </div>
+        </section>
+
+        <!-- ================= PANEL 3: DEFENSE EVOLUTION (Right - 4 Cols) ================= -->
+        <section class="lg:col-span-4 flex flex-col">
+            <div class="glass-panel rounded-xl p-6 flex flex-col h-full">
+                
+                <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base text-cyan-400">trending_up</span>
+                            Closed-Loop Retraining Lift
+                        </h2>
+                        <p class="text-xs text-zinc-400 mt-0.5">Round 1 Seed vs Final Augmented AI Model</p>
+                    </div>
+                </div>
+
+                <!-- Overall Lift Highlight Box -->
+                <div class="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/30 mb-5 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-mono text-cyan-300">OVERALL RECALL LIFT</div>
+                        <div class="text-xl font-bold font-mono text-white mt-0.5">89.8% → <span class="text-emerald-400 text-glow-green">97.8%</span></div>
+                    </div>
+                    <div class="px-3 py-1 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono font-bold text-sm">
+                        +8.0%
+                    </div>
+                </div>
+
+                <!-- Per-Category Improvement Bars -->
+                <div class="flex-1 flex flex-col justify-between gap-3" id="metrics-bars">
+                    <!-- Dynamic Bars rendered by JS -->
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-zinc-400 font-mono">
+                    💡 <b>Key Finding:</b> Person B's 520 variations significantly closed detection loopholes in Account Takeover and Prompt Injections.
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        let sampleCases = [];
+
+        function showToast(msg, type='success') {
+            const c = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            const border = type === 'fraud' ? 'border-rose-500 text-rose-300 bg-rose-950/80' : 'border-emerald-500 text-emerald-300 bg-emerald-950/80';
+            el.className = `pointer-events-auto px-4 py-2.5 rounded-lg border ${border} text-xs font-mono shadow-xl transition-all duration-300 opacity-0 translate-y-2`;
+            el.innerText = msg;
+            c.appendChild(el);
+            requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
+            setTimeout(() => {
+                el.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => el.remove(), 300);
+            }, 3500);
         }
 
-        document.querySelectorAll('ul li').forEach(li => {
-            const text = li.innerText.trim();
-            li.style.cursor = 'pointer';
-            li.addEventListener('click', () => {
-                filterByAttack(text);
-            });
-        });
+        async function initDashboard() {
+            // 1. Fetch Summary
+            try {
+                const res = await fetch('/summary');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('stat-total').innerText = data.total_evaluated;
+                    document.getElementById('stat-acc').innerText = data.accuracy_pct + '%';
+                    document.getElementById('stat-fraud').innerText = data.fraud_cases;
+                    document.getElementById('stat-legit').innerText = data.legit_cases;
+                }
+            } catch(e) { console.error('Summary error:', e); }
 
-        const searchInput = document.querySelector('input[placeholder="Search logs, alerts..."]');
-        if (searchInput) {
-            searchInput.addEventListener('keydown', async (e) => {
-                if (e.key === 'Enter' && searchInput.value.trim()) {
-                    const query = searchInput.value.trim();
-                    showToast('Searching Neural Index', `Querying "${query}"...`);
-                    try {
-                        const res = await fetch('/predict', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ narrative: query })
-                        });
-                        const data = await res.json();
-                        inspectCase(data.case_id);
-                        document.getElementById('narrative-box').innerHTML = `<span><b>[SEARCH QUERY]</b> ${query}</span>`;
-                        document.getElementById('reasoning-text').innerText = `"${data.reason}"`;
-                        document.getElementById('prediction-text').innerText = data.predicted_label.toUpperCase();
-                        document.getElementById('confidence-text').innerText = Math.round(data.confidence * 100) + '%';
-                    } catch(err) {
-                        showToast('Search Failed', err.message, 'error');
+            // 2. Fetch Sample Attacks
+            try {
+                const res = await fetch('/sample-attacks?limit=10');
+                if (res.ok) {
+                    sampleCases = await res.json();
+                    const sel = document.getElementById('case-select');
+                    const vectorList = document.getElementById('vector-list');
+
+                    sel.innerHTML = '<option value="">-- Choose Sample Attack Case --</option>';
+                    vectorList.innerHTML = '';
+
+                    sampleCases.forEach(c => {
+                        // Dropdown option
+                        const opt = document.createElement('option');
+                        opt.value = c.case_id;
+                        const labelType = c.attack_type.replace(/_/g, ' ').toUpperCase();
+                        opt.innerText = `[${c.case_id}] ${labelType} (${c.amount || '0'} ${c.currency || 'USD'})`;
+                        sel.appendChild(opt);
+
+                        // Left panel vector button
+                        if (c.attack_type !== 'none') {
+                            const btn = document.createElement('button');
+                            btn.className = "w-full text-left px-3 py-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.06] border border-white/5 hover:border-emerald-500/40 text-xs text-zinc-300 font-mono transition-all flex items-center justify-between";
+                            btn.innerHTML = `<span>${labelType}</span><span class="text-zinc-500 text-[10px]">${c.case_id}</span>`;
+                            btn.onclick = () => selectCase(c.case_id);
+                            vectorList.appendChild(btn);
+                        }
+                    });
+
+                    // Auto-select first case
+                    if (sampleCases.length > 0) {
+                        selectCase(sampleCases[0].case_id);
                     }
                 }
-            });
-        }
-    });
-</script>
+            } catch(e) { console.error('Sample cases error:', e); }
 
+            // 3. Fetch Metrics Comparison
+            try {
+                const res = await fetch('/metrics');
+                if (res.ok) {
+                    const data = await res.json();
+                    const container = document.getElementById('metrics-bars');
+                    container.innerHTML = '';
+
+                    data.per_attack_type.forEach(m => {
+                        const el = document.createElement('div');
+                        el.className = "space-y-1";
+                        el.innerHTML = `
+                            <div class="flex justify-between text-xs font-mono">
+                                <span class="text-zinc-300">${m.attack_type}</span>
+                                <span class="text-emerald-400 font-bold">+${m.improvement}%</span>
+                            </div>
+                            <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden flex">
+                                <div class="bg-zinc-600 h-full" style="width: ${m.round1_recall}%" title="Round 1: ${m.round1_recall}%"></div>
+                                <div class="bg-emerald-400 h-full" style="width: ${m.improvement}%" title="Final: ${m.final_recall}%"></div>
+                            </div>
+                            <div class="flex justify-between text-[10px] font-mono text-zinc-500">
+                                <span>R1: ${m.round1_recall}%</span>
+                                <span class="text-emerald-400">Final: ${m.final_recall}%</span>
+                            </div>
+                        `;
+                        container.appendChild(el);
+                    });
+                }
+            } catch(e) { console.error('Metrics error:', e); }
+        }
+
+        function selectCase(caseId) {
+            const match = sampleCases.find(c => c.case_id === caseId);
+            if (!match) return;
+
+            document.getElementById('case-select').value = caseId;
+            document.getElementById('narrative-box').innerText = match.narrative_snippet || 'No narrative text.';
+            document.getElementById('case-meta').innerText = `AMT: ${match.amount || 'N/A'} ${match.currency || 'USD'} | CHANNEL: ${(match.channel || 'ECOM').toUpperCase()}`;
+
+            // Reset result state to ready
+            const resultBox = document.getElementById('result-container');
+            resultBox.className = "rounded-lg p-4 bg-white/[0.02] border border-white/5 transition-all";
+            document.getElementById('pred-badge').innerText = "READY TO EVALUATE";
+            document.getElementById('pred-badge').className = "text-lg font-bold text-zinc-400 font-mono tracking-wider";
+            document.getElementById('conf-badge').innerText = "--%";
+            document.getElementById('conf-badge').className = "text-lg font-bold text-zinc-400 font-mono";
+            document.getElementById('reason-text').innerText = "Click 'Run AI Detection' to evaluate with Gemini model.";
+        }
+
+        async function runPrediction() {
+            const caseId = document.getElementById('case-select').value;
+            if (!caseId) {
+                showToast('Please select an attack scenario first', 'fraud');
+                return;
+            }
+
+            const btn = document.getElementById('btn-run-predict');
+            btn.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">refresh</span> Evaluating with Gemini...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ case_id: caseId })
+                });
+                const data = await res.json();
+
+                const isFraud = data.predicted_label === 'fraud';
+                const resultBox = document.getElementById('result-container');
+                const predBadge = document.getElementById('pred-badge');
+                const confBadge = document.getElementById('conf-badge');
+                const reasonText = document.getElementById('reason-text');
+
+                if (isFraud) {
+                    resultBox.className = "rounded-lg p-4 bg-rose-950/20 border border-rose-500/40 glow-box-red transition-all";
+                    predBadge.innerText = `🚨 ${data.predicted_label.toUpperCase()} (${data.predicted_attack_type.toUpperCase()})`;
+                    predBadge.className = "text-sm font-bold text-rose-400 font-mono text-glow-red";
+                    confBadge.className = "text-lg font-bold text-rose-400 font-mono";
+                } else {
+                    resultBox.className = "rounded-lg p-4 bg-emerald-950/20 border border-emerald-500/40 glow-box-green transition-all";
+                    predBadge.innerText = `✅ ${data.predicted_label.toUpperCase()}`;
+                    predBadge.className = "text-sm font-bold text-emerald-400 font-mono text-glow-green";
+                    confBadge.className = "text-lg font-bold text-emerald-400 font-mono";
+                }
+
+                confBadge.innerText = Math.round(data.confidence * 100) + '%';
+                reasonText.innerText = `"${data.reason}"`;
+
+                showToast(`Inference complete: ${data.predicted_label.toUpperCase()} (${Math.round(data.confidence * 100)}% confidence)`, isFraud ? 'fraud' : 'success');
+
+            } catch(e) {
+                showToast('Inference error: ' + e.message, 'fraud');
+            } finally {
+                btn.innerHTML = '<span class="material-symbols-outlined text-lg">bolt</span> Run AI Detection';
+                btn.disabled = false;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initDashboard();
+            document.getElementById('case-select').addEventListener('change', (e) => selectCase(e.target.value));
+            document.getElementById('btn-run-predict').addEventListener('click', runPrediction);
+        });
+    </script>
 </body>
 </html>
