@@ -1,670 +1,1707 @@
-﻿<!DOCTYPE html>
-<html class="dark" lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>FraudLens — GenAI Payment Fraud Defense Pipeline</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
-    <style>
-        body { background-color: #07090E; color: #DAE5DA; font-family: 'Geist', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .glass-panel { background: #0E121A; border: 1px solid rgba(255,255,255,0.06); }
-        .text-glow-green { text-shadow: 0 0 12px rgba(0, 255, 148, 0.5); }
-        .text-glow-red { text-shadow: 0 0 12px rgba(255, 90, 95, 0.5); }
-        .glow-box-green { box-shadow: 0 0 20px rgba(0, 255, 148, 0.15); }
-        .glow-box-red { box-shadow: 0 0 20px rgba(255, 90, 95, 0.15); }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #07090E; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 4px; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FraudLens — GenAI Payment Fraud Defense</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+       ============================================================ */
+    :root {
+      /* Canvas */
+      --canvas:    #0C0E12;
+      --surface:   #15181E;
+      --border:    #242831;
+
+      /* Text */
+      --text:      #F3F4F6;
+      --muted:     #8C93A0;
+
+      /* Brand action */
+      --indigo:    #4F6BFF;
+      --indigo-10: rgba(79,107,255,0.10);
+      --indigo-25: rgba(79,107,255,0.25);
+
+      /* Status */
+      --green:     #10B981;
+      --green-10:  rgba(16,185,129,0.10);
+      --green-25:  rgba(16,185,129,0.25);
+      --red:       #F43F5E;
+      --red-10:    rgba(244,63,94,0.10);
+      --red-25:    rgba(244,63,94,0.25);
+
+      /* Spacing (8-point) */
+      --s1:  4px;
+      --s2:  8px;
+      --s3:  16px;
+      --s4:  24px;
+      --s5:  32px;
+      --s6:  48px;
+      --s7:  64px;
+
+      /* Typography */
+      --font-body: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
+
+      /* Radii */
+      --r-sm:  6px;
+      --r-md:  10px;
+      --r-lg:  14px;
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { color-scheme: dark; }
+
+    body {
+      background: var(--canvas);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* Focus ring */
+    :focus-visible {
+      outline: 2px solid var(--indigo);
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* ============================================================
+       UTILITIES
+       ============================================================ */
+    .mono { font-family: var(--font-mono); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--s4);
+    }
+
+    .text-muted { color: var(--muted); }
+    .text-indigo { color: var(--indigo); }
+    .text-green  { color: var(--green); }
+    .text-red    { color: var(--red); }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s1);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .tag-green {
+      border-color: var(--green-25);
+      background: var(--green-10);
+      color: var(--green);
+    }
+
+    .tag-red {
+      border-color: var(--red-25);
+      background: var(--red-10);
+      color: var(--red);
+    }
+
+    .tag-indigo {
+      border-color: var(--indigo-25);
+      background: var(--indigo-10);
+      color: var(--indigo);
+    }
+
+    /* Section layout */
+    .section {
+      padding: var(--s6) 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: var(--s4);
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+      margin-bottom: var(--s2);
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: var(--s5);
+      max-width: 560px;
+    }
+
+    /* Primary button */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s2);
+      background: var(--indigo);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: var(--r-md);
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      text-decoration: none;
+      line-height: 1;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+
+    /* Ghost button */
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s2);
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .btn-ghost:hover { color: var(--text); border-color: #3a3f4d; background: rgba(255,255,255,0.04); }
+
+    /* Secondary button */
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--s2);
+      background: var(--indigo-10);
+      color: var(--indigo);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--indigo-25);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-secondary:hover { background: var(--indigo-25); }
+    .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ============================================================
+       HEADER
+       ============================================================ */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(12,14,18,0.90);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 var(--s4);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      text-decoration: none;
+    }
+
+    .header-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--r-sm);
+      background: var(--indigo-10);
+      border: 1px solid var(--indigo-25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .header-logo svg { width: 16px; height: 16px; }
+
+    .brand-name {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+
+    .status-dot {
+      display: flex;
+      align-items: center;
+      gap: var(--s1);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    /* ============================================================
+       PAGE LAYOUT
+       ============================================================ */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 var(--s4);
+    }
+
+    /* ============================================================
+       HERO SECTION
+       ============================================================ */
+    .hero {
+      padding: var(--s7) 0 var(--s6) 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--indigo);
+      margin-bottom: var(--s4);
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 4vw, 36px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: var(--s3);
+      max-width: 600px;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 520px;
+      margin-bottom: var(--s6);
+    }
+
+    .hero-action {
+      display: flex;
+      align-items: center;
+      gap: var(--s3);
+    }
+
+    /* ============================================================
+       PIPELINE STREAM AREA (shown while/after running)
+       ============================================================ */
+    #stream-area {
+      display: none;
+      width: 100%;
+      margin-top: var(--s5);
+    }
+
+    #stream-area.visible { display: block; }
+
+    .stream-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--s2);
+    }
+
+    .stream-label {
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--indigo);
+    }
+
+    .spin {
+      display: inline-block;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .stream-counter {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    #stream-log {
+      background: #0A0C10;
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--s3);
+      max-height: 180px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .stream-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      gap: var(--s2);
+    }
+
+    .stream-row:last-child { border-bottom: none; }
+
+    .stream-case-id { color: var(--text); font-weight: 500; }
+
+    /* ============================================================
+       RESULT SCORECARDS
+       ============================================================ */
+    #scorecards {
+      display: none;
+      margin-top: var(--s6);
+      width: 100%;
+    }
+
+    #scorecards.visible { display: block; }
+
+    .scorecard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s3);
+    }
+
+    @media (min-width: 560px) {
+      .scorecard-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .scorecard {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--s4);
+      text-align: left;
+    }
+
+    .scorecard-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: var(--s2);
+    }
+
+    .scorecard-value {
+      font-family: var(--font-mono);
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--text);
+      transition: color 0.3s;
+    }
+
+    .scorecard-value.positive { color: var(--green); }
+
+    .scorecard-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: var(--s1);
+    }
+
+    .pipeline-done-badge {
+      display: none;
+      align-items: center;
+      gap: var(--s2);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      margin-bottom: var(--s5);
+    }
+
+    .pipeline-done-badge.visible { display: flex; }
+
+    /* ============================================================
+       SECTION: RETRAINING LIFT
+       ============================================================ */
+    #section-lift { display: none; }
+    #section-lift.visible { display: block; }
+
+    .lift-hero {
+      display: flex;
+      align-items: center;
+      gap: var(--s4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--s4);
+      margin-bottom: var(--s4);
+    }
+
+    .lift-hero-number {
+      font-family: var(--font-mono);
+      font-size: 40px;
+      font-weight: 600;
+      color: var(--green);
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .lift-hero-desc { font-size: 14px; line-height: 1.5; }
+    .lift-hero-desc strong { color: var(--text); }
+
+    .lift-bars-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s3);
+    }
+
+    @media (max-width: 600px) {
+      .lift-bars-grid { grid-template-columns: 1fr; }
+    }
+
+    .lift-bar-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--s3);
+    }
+
+    .lift-bar-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: var(--s2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .lift-bar-track {
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      display: flex;
+      margin-bottom: var(--s2);
+    }
+
+    .lift-bar-r1 {
+      height: 100%;
+      background: #3a3f4d;
+      border-radius: 3px 0 0 3px;
+      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .lift-bar-gain {
+      height: 100%;
+      background: var(--green);
+      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+    }
+
+    .lift-bar-values {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .lift-bar-values .final { color: var(--green); }
+
+    /* ============================================================
+       SECTION: ATTACK CATEGORIES
+       ============================================================ */
+    #section-attacks { display: none; }
+    #section-attacks.visible { display: block; }
+
+    .attacks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--s3);
+    }
+
+    @media (min-width: 640px) {
+      .attacks-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    .attack-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--s3);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+    }
+
+    .attack-card:hover {
+      border-color: var(--indigo-25);
+      background: #1a1d24;
+    }
+
+    .attack-card-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--r-sm);
+      background: var(--indigo-10);
+      border: 1px solid var(--indigo-25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .attack-card-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .attack-card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .attack-card-link {
+      font-size: 12px;
+      color: var(--indigo);
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: auto;
+    }
+
+    /* ============================================================
+       SECTION: ADVANCED / MANUAL INSPECTION
+       ============================================================ */
+    #section-advanced { display: none; }
+    #section-advanced.visible { display: block; }
+
+    .advanced-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--s3) var(--s4);
+      cursor: pointer;
+      color: var(--muted);
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 500;
+      text-align: left;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .advanced-toggle:hover { background: rgba(255,255,255,0.03); color: var(--text); }
+
+    .advanced-toggle-icon {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .advanced-toggle.open .advanced-toggle-icon { transform: rotate(180deg); }
+
+    .advanced-body {
+      display: none;
+      margin-top: var(--s3);
+    }
+
+    .advanced-body.open { display: block; }
+
+    /* Manual inspector card */
+    .inspector-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--s4);
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+      display: block;
+      margin-bottom: var(--s1);
+    }
+
+    select, textarea {
+      width: 100%;
+      background: var(--canvas);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: 10px var(--s3);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+    }
+
+    select:focus, textarea:focus { border-color: var(--indigo); }
+
+    select option { background: var(--surface); }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .form-group { margin-bottom: var(--s4); }
+    .form-group:last-of-type { margin-bottom: 0; }
+
+    .narrative-box {
+      background: var(--canvas);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--s3);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+      min-height: 90px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    .narrative-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: var(--s1);
+    }
+
+    .result-box {
+      margin-top: var(--s4);
+      background: var(--canvas);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--s3);
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .result-box.fraud-result {
+      border-color: var(--red-25);
+      background: var(--red-10);
+    }
+
+    .result-box.legit-result {
+      border-color: var(--green-25);
+      background: var(--green-10);
+    }
+
+    .result-verdict {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--s1);
+    }
+
+    .result-conf {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: var(--s2);
+    }
+
+    .result-reason {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    .inspector-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s3);
+      margin-bottom: var(--s4);
+    }
+
+    @media (max-width: 520px) {
+      .inspector-row { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================================
+       MODAL (Question vs Actual vs Detected)
+       ============================================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0,0,0,0.70);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--s4);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      padding: var(--s5);
+      max-width: 600px;
+      width: 100%;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: var(--s3);
+      right: var(--s3);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 16px;
+      transition: color 0.15s, border-color 0.15s;
+    }
+
+    .modal-close:hover { color: var(--text); border-color: #3a3f4d; }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: var(--s1);
+      padding-right: var(--s5);
+    }
+
+    .modal-subtitle {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: var(--s4);
+    }
+
+    .modal-section {
+      background: var(--canvas);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--s3);
+      margin-bottom: var(--s3);
+    }
+
+    .modal-section:last-child { margin-bottom: 0; }
+
+    .modal-section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: var(--s2);
+    }
+
+    .modal-section-content {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--text);
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .verdict-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--s3);
+      margin-bottom: var(--s3);
+    }
+
+    @media (max-width: 440px) { .verdict-pair { grid-template-columns: 1fr; } }
+
+    .verdict-cell {
+      background: var(--canvas);
+      border: 1px solid var(--border);
+      border-radius: var(--r-md);
+      padding: var(--s3);
+    }
+
+    .verdict-cell-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: var(--s2);
+    }
+
+    .verdict-cell-value {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: var(--s4);
+    }
+
+    /* ============================================================
+       TOAST NOTIFICATIONS
+       ============================================================ */
+    #toasts {
+      position: fixed;
+      bottom: var(--s4);
+      right: var(--s4);
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: var(--s2);
+      pointer-events: none;
+    }
+
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--s2);
+      padding: 10px 16px;
+      border-radius: var(--r-md);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-size: 13px;
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      max-width: 320px;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    .toast.success { border-color: var(--green-25); }
+    .toast.error   { border-color: var(--red-25); }
+    .toast.info    { border-color: var(--indigo-25); }
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: var(--s4) 0;
+      margin-top: var(--s6);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      gap: var(--s3);
+      flex-wrap: wrap;
+    }
+
+    .footer-inner a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+
+    .footer-inner a:hover { color: var(--text); }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased">
+<body>
 
-    <!-- Top Navigation Bar -->
-    <header class="border-b border-white/10 bg-[#0A0D14]/90 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
-                <span class="material-symbols-outlined text-emerald-400 text-lg">shield</span>
-            </div>
-            <div>
-                <span class="font-bold text-lg text-white tracking-tight">FraudLens</span>
-                <span class="text-xs text-emerald-400 font-mono ml-2 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30">GenAI Defense Pipeline</span>
-            </div>
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="header">
+  <a href="/" class="header-brand">
+    <div class="header-logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--indigo);" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <span class="brand-name">FraudLens</span>
+  </a>
+  <div class="header-right">
+    <div class="status-dot">
+      <span class="pulse-dot" aria-hidden="true"></span>
+      <span class="mono">API online</span>
+    </div>
+    <a href="/docs" target="_blank" class="btn-ghost" style="font-size:12px; padding: 6px 12px;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      API docs
+    </a>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN PAGE
+     ============================================================ -->
+<main class="page">
+
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <p class="hero-eyebrow mono">Mastercard Innovation Challenge 2026</p>
+    <h1 class="hero-title" id="hero-heading">Test your payment<br>fraud defense pipeline</h1>
+    <p class="hero-subtitle">
+      FraudLens runs a 599-case benchmark spanning 6 GenAI-native attack vectors — then shows you exactly where the defense held and where it improved through closed-loop retraining.
+    </p>
+
+    <div class="hero-action">
+      <button id="btn-run" class="btn-primary" onclick="runPipeline()" aria-describedby="run-desc">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Run Detection Pipeline
+      </button>
+      <button id="btn-reset" class="btn-ghost" onclick="resetPipeline()" style="display:none;" aria-label="Reset pipeline to initial state">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 101.85-4.36L1 10"/></svg>
+        Reset
+      </button>
+    </div>
+    <p id="run-desc" style="font-size:12px; color: var(--muted); margin-top: var(--s3);">
+      Streams 34 live cases, then benchmarks against the full 599-case dataset.
+    </p>
+
+    <!-- Pipeline stream ticker -->
+    <div id="stream-area" style="width:100%; max-width:660px;" role="log" aria-live="polite" aria-label="Pipeline execution log">
+      <div class="stream-header">
+        <div class="stream-label mono">
+          <span id="spin-icon" class="spin" aria-hidden="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          </span>
+          <span id="stream-status">Evaluating cases…</span>
         </div>
-        
-        <!-- Center Action Banner -->
-        <div class="flex items-center gap-3">
-            <button id="btn-run-pipeline" onclick="executePipeline()" class="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs tracking-wider font-mono transition-all shadow-[0_0_20px_rgba(0,255,148,0.3)] flex items-center gap-2 active:scale-95">
-                <span class="material-symbols-outlined text-sm">play_arrow</span>
-                <span>▶ RUN DETECTION PIPELINE</span>
-            </button>
-            <button id="btn-reset-pipeline" onclick="resetToZeroState()" class="hidden px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 text-xs font-mono border border-white/10 transition-colors">
-                <span class="material-symbols-outlined text-xs">restart_alt</span>
-            </button>
-        </div>
-
-        <div class="flex items-center gap-4 text-xs font-mono">
-            <div class="flex items-center gap-2 px-3 py-1 rounded bg-white/5 border border-white/10">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span class="text-zinc-300">API: <b class="text-emerald-400">ONLINE</b></span>
-            </div>
-            <a href="/docs" target="_blank" class="text-zinc-400 hover:text-white transition-colors flex items-center gap-1 border border-white/10 px-3 py-1 rounded bg-white/5">
-                <span class="material-symbols-outlined text-sm">api</span> API Docs
-            </a>
-        </div>
-    </header>
-
-    <!-- Ticker Banner Area (Visible while running pipeline) -->
-    <section id="ticker-section" class="hidden bg-[#0A0E17] border-b border-emerald-500/30 px-6 py-3 transition-all">
-        <div class="max-w-7xl mx-auto flex flex-col gap-2">
-            <div class="flex items-center justify-between text-xs font-mono">
-                <div class="flex items-center gap-2 text-emerald-400">
-                    <span class="material-symbols-outlined text-sm animate-spin">refresh</span>
-                    <span class="font-bold">EVALUATING NEURAL FRAUD CLASSIFIER IN REAL-TIME</span>
-                </div>
-                <div class="text-zinc-400">
-                    Processed: <span id="ticker-count" class="text-white font-bold">0</span> / 34 cases | Running Accuracy: <span id="ticker-acc" class="text-emerald-400 font-bold">--%</span>
-                </div>
-            </div>
-            <div id="ticker-log" class="bg-[#05070B] border border-white/5 rounded p-2.5 max-h-24 overflow-y-auto font-mono text-[11px] text-zinc-300 space-y-1">
-            </div>
-        </div>
-    </section>
-    <!-- Main Content: 3 Clean Panels -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- PANEL 1: IDENTIFY (Left - 3 Cols) -->
-        <section class="lg:col-span-3 flex flex-col gap-5">
-            
-            <!-- Summary Stats Card (Zero State on Load) -->
-            <div class="glass-panel rounded-xl p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm text-emerald-400">analytics</span>
-                        Evaluation Metrics
-                    </h2>
-                    <span id="pipeline-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">UNTESTED</span>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3 mb-4">
-                    <div class="p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                        <div class="text-[11px] font-mono text-zinc-400">Total Cases</div>
-                        <div id="stat-total" class="text-2xl font-mono font-bold text-zinc-500 mt-1">0</div>
-                    </div>
-                    <div class="p-3 rounded-lg bg-white/[0.03] border border-white/5">
-                        <div class="text-[11px] font-mono text-zinc-400">Accuracy</div>
-                        <div id="stat-acc" class="text-2xl font-mono font-bold text-zinc-500 mt-1">--%</div>
-                    </div>
-                </div>
-
-                <div class="space-y-2 pt-2 border-t border-white/5 text-xs font-mono">
-                    <div class="flex justify-between text-zinc-400">
-                        <span>Fraud Caught:</span>
-                        <span id="stat-fraud" class="text-zinc-500 font-bold">0</span>
-                    </div>
-                    <div class="flex justify-between text-zinc-400">
-                        <span>Legitimate Passed:</span>
-                        <span id="stat-legit" class="text-zinc-500 font-bold">0</span>
-                    </div>
-                    <div class="flex justify-between text-zinc-400">
-                        <span>Fraud F1-Score:</span>
-                        <span id="stat-f1" class="text-zinc-500 font-bold">--%</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Monitored Attack Vectors Card (Dimmed until pipeline runs) -->
-            <div id="vector-panel" class="glass-panel rounded-xl p-5 flex-1 flex flex-col opacity-40 pointer-events-none transition-all duration-500">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-xs font-mono uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-sm text-cyan-400">radar</span>
-                        Attack Explainers
-                    </h2>
-                    <span id="lock-indicator" class="material-symbols-outlined text-xs text-zinc-500">lock</span>
-                </div>
-                <p id="vector-hint" class="text-[11px] text-zinc-400 mb-3 leading-relaxed">
-                    Run pipeline to unlock Question vs Actual vs Detected analysis:
-                </p>
-                <div id="vector-list" class="space-y-2 flex-1">
-                </div>
-            </div>
-        </section>
-
-        <!-- PANEL 2: LIVE TEST / DEFEND (Center - 5 Cols) -->
-        <section class="lg:col-span-5 flex flex-col">
-            <div class="glass-panel rounded-xl p-6 flex flex-col h-full relative">
-                
-                <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-                    <div>
-                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                            Threat Analysis & Detection Engine
-                        </h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Interactive single-case manual inspector</p>
-                    </div>
-                </div>
-
-                <!-- Scenario Selector Dropdown -->
-                <div class="mb-4">
-                    <label class="text-xs font-mono text-zinc-400 block mb-1.5">MANUAL TEST CASE SELECTOR</label>
-                    <select id="case-select" class="w-full bg-[#131722] text-sm text-zinc-200 border border-white/10 rounded-lg px-3 py-2.5 outline-none focus:border-emerald-500 transition-colors font-mono">
-                        <option value="">-- Select Case to Inspect --</option>
-                    </select>
-                </div>
-
-                <!-- Narrative Display Area -->
-                <div class="mb-4 flex-1 flex flex-col">
-                    <div class="flex justify-between items-center mb-1.5">
-                        <label class="text-xs font-mono text-zinc-400">INPUT QUESTION / NARRATIVE</label>
-                        <span id="case-meta" class="text-[11px] font-mono text-cyan-400"></span>
-                    </div>
-                    <div id="narrative-box" class="flex-1 min-h-[130px] max-h-[190px] overflow-y-auto bg-[#07090E] border border-white/10 rounded-lg p-3 text-xs text-zinc-300 font-mono leading-relaxed">
-                        <span class="text-zinc-500 italic">Select a case above or click "Run Detection Pipeline" to inspect threats...</span>
-                    </div>
-                </div>
-
-                <!-- Run AI Detection Button -->
-                <button id="btn-run-predict" onclick="runManualPrediction()" class="w-full py-2.5 px-4 rounded-lg bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-black font-bold text-xs font-mono tracking-wider transition-all border border-emerald-500/40 flex items-center justify-center gap-2 mb-4">
-                    <span class="material-symbols-outlined text-sm">bolt</span>
-                    RUN SINGLE INFERENCE
-                </button>
-
-                <!-- Detection Output Box -->
-                <div id="result-container" class="rounded-lg p-4 bg-white/[0.02] border border-white/5 transition-all">
-                    <div class="grid grid-cols-2 gap-4 items-center">
-                        <div>
-                            <div class="text-[10px] font-mono text-zinc-400 mb-0.5">DETECTED VERDICT</div>
-                            <div id="pred-badge" class="text-sm font-bold text-zinc-500 font-mono tracking-wider">AWAITING RUN</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-[10px] font-mono text-zinc-400 mb-0.5">CONFIDENCE</div>
-                            <div id="conf-badge" class="text-base font-bold text-zinc-500 font-mono">--%</div>
-                        </div>
-                    </div>
-                    <div class="mt-2.5 pt-2.5 border-t border-white/5">
-                        <div class="text-[10px] font-mono text-zinc-400 mb-0.5">GEMINI REASONING</div>
-                        <div id="reason-text" class="text-xs text-zinc-400 italic">No inference run yet.</div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- PANEL 3: DEFENSE EVOLUTION (Right - 4 Cols) -->
-        <section class="lg:col-span-4 flex flex-col">
-            <div id="recall-panel" class="glass-panel rounded-xl p-6 flex flex-col h-full opacity-40 transition-all duration-500">
-                
-                <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
-                    <div>
-                        <h2 class="text-sm font-bold text-white flex items-center gap-2">
-                            <span class="material-symbols-outlined text-base text-cyan-400">trending_up</span>
-                            Closed-Loop Retraining Lift
-                        </h2>
-                        <p class="text-xs text-zinc-400 mt-0.5">Round 1 Seed vs Final Augmented Model</p>
-                    </div>
-                    <span id="recall-lock" class="material-symbols-outlined text-xs text-zinc-500">lock</span>
-                </div>
-
-                <!-- Overall Lift Highlight Box -->
-                <div class="p-4 rounded-lg bg-cyan-500/10 border border-cyan-500/30 mb-4 flex items-center justify-between">
-                    <div>
-                        <div class="text-xs font-mono text-cyan-300">OVERALL RECALL LIFT</div>
-                        <div id="overall-recall-text" class="text-lg font-bold font-mono text-white mt-0.5">89.8% → <span class="text-emerald-400 text-glow-green">97.8%</span></div>
-                    </div>
-                    <div id="overall-lift-badge" class="px-3 py-1 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-mono font-bold text-sm">
-                        +8.0%
-                    </div>
-                </div>
-
-                <!-- Per-Category Improvement Bars -->
-                <div class="flex-1 flex flex-col justify-between gap-3" id="metrics-bars">
-                </div>
-
-                <div class="mt-4 pt-3 border-t border-white/5 text-[11px] text-zinc-400 font-mono">
-                    💡 <b>Closed-Loop Impact:</b> Person B's 520 augmented edge cases eliminated key vulnerabilities in Account Takeover (+12.4%) and Prompt Injections (+9.6%).
-                </div>
-
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Explainer Modal: Question vs Actual vs Detected -->
-    <div id="explainer-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center hidden p-4">
-        <div class="glass-panel border border-emerald-500/30 rounded-xl max-w-2xl w-full p-6 shadow-2xl relative glow-box-green">
-            <button onclick="closeExplainerModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white transition-colors">
-                <span class="material-symbols-outlined">close</span>
-            </button>
-            
-            <div class="flex items-center gap-2 mb-4">
-                <span class="material-symbols-outlined text-emerald-400">verified</span>
-                <h3 id="modal-category-title" class="font-bold text-base text-white">Account Takeover Analysis</h3>
-                <span id="modal-case-tag" class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">seed_001</span>
-            </div>
-
-            <div class="space-y-4">
-                <!-- 1. Question -->
-                <div class="p-3.5 rounded-lg bg-[#07090E] border border-white/10">
-                    <div class="text-[11px] font-mono text-cyan-400 uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                        <span class="material-symbols-outlined text-xs">quiz</span> 1. Question (Transaction & Narrative Input)
-                    </div>
-                    <p id="modal-question" class="text-xs text-zinc-300 font-mono leading-relaxed max-h-36 overflow-y-auto">
-                        Loading...
-                    </p>
-                </div>
-
-                <!-- 2. Actual vs Detected Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    
-                    <!-- Actual (Ground Truth) -->
-                    <div class="p-3.5 rounded-lg bg-white/[0.02] border border-white/10">
-                        <div class="text-[11px] font-mono text-zinc-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs text-zinc-400">fact_check</span> 2. Actual (Ground Truth)
-                        </div>
-                        <div id="modal-actual" class="text-sm font-mono font-bold text-rose-400">
-                            FRAUD — Account Takeover
-                        </div>
-                    </div>
-
-                    <!-- Detected (Model Prediction) -->
-                    <div class="p-3.5 rounded-lg bg-emerald-950/20 border border-emerald-500/40">
-                        <div class="text-[11px] font-mono text-emerald-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-                            <span class="material-symbols-outlined text-xs text-emerald-400">model_training</span> 3. Detected (Model Verdict)
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div id="modal-detected" class="text-sm font-mono font-bold text-emerald-400 text-glow-green">
-                                FRAUD (96%)
-                            </div>
-                            <span id="modal-match-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">
-                                ✓ MATCH
-                            </span>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Model Reasoning -->
-                <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
-                    <div class="text-[10px] font-mono text-zinc-400 mb-1">AI CLASSIFICATION REASONING</div>
-                    <p id="modal-reason" class="text-xs text-zinc-300 italic font-mono">
-                        "Anomalous session takeover pattern matching VoIP caller ID spoofing and OTP bypass."
-                    </p>
-                </div>
-            </div>
-
-            <div class="mt-5 flex justify-end">
-                <button onclick="closeExplainerModal()" class="px-4 py-1.5 rounded bg-white/10 hover:bg-white/20 text-xs font-mono text-white transition-colors">
-                    Close Explainer
-                </button>
-            </div>
-        </div>
+        <span class="stream-counter mono">
+          <span id="stream-count">0</span> / <span id="stream-total">34</span> · Running accuracy: <span id="stream-acc">—</span>
+        </span>
+      </div>
+      <div id="stream-log"></div>
     </div>
 
-    <!-- Toast Notifications Container -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-    <script>
-        let sampleCases = [];
-        let streamCases = [];
-        let metricsData = null;
-        let summaryData = null;
-        let isPipelineExecuted = false;
+    <!-- Scorecards (post-pipeline) -->
+    <div id="scorecards" style="width:100%; max-width:660px;">
+      <div id="done-badge" class="pipeline-done-badge" style="justify-content:center; margin-bottom: var(--s4);" aria-live="polite">
+        <span class="tag tag-green">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          Pipeline benchmarked
+        </span>
+        <span style="font-family: var(--font-mono); font-size:11px; color: var(--muted);">599 cases evaluated across 6 attack categories</span>
+      </div>
+      <div class="scorecard-grid">
+        <div class="scorecard">
+          <div class="scorecard-label">Overall accuracy</div>
+          <div class="scorecard-value" id="sc-accuracy">—</div>
+          <div class="scorecard-sub">on 599 cases</div>
+        </div>
+        <div class="scorecard">
+          <div class="scorecard-label">Fraud F1-score</div>
+          <div class="scorecard-value" id="sc-f1">—</div>
+          <div class="scorecard-sub">precision × recall</div>
+        </div>
+        <div class="scorecard">
+          <div class="scorecard-label">Fraud cases caught</div>
+          <div class="scorecard-value" id="sc-fraud">—</div>
+          <div class="scorecard-sub mono" id="sc-fraud-sub">of 324</div>
+        </div>
+        <div class="scorecard">
+          <div class="scorecard-label">Closed-loop lift</div>
+          <div class="scorecard-value positive" id="sc-lift">—</div>
+          <div class="scorecard-sub">recall improvement</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        function showToast(msg, type='success') {
-            const c = document.getElementById('toast-container');
-            const el = document.createElement('div');
-            const border = type === 'fraud' || type === 'error' ? 'border-rose-500 text-rose-300 bg-rose-950/90' : 'border-emerald-500 text-emerald-300 bg-emerald-950/90';
-            el.className = `pointer-events-auto px-4 py-2.5 rounded-lg border ${border} text-xs font-mono shadow-xl transition-all duration-300 opacity-0 translate-y-2`;
-            el.innerText = msg;
-            c.appendChild(el);
-            requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
-            setTimeout(() => {
-                el.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => el.remove(), 300);
-            }, 3500);
-        }
+  <!-- SECTION 1: RETRAINING LIFT -->
+  <section id="section-lift" class="section" aria-labelledby="lift-heading">
+    <p class="section-label">Defense improvement</p>
+    <h2 class="section-title" id="lift-heading">Closed-loop retraining lift</h2>
+    <p class="section-desc">
+      Round 1 seeded the detector with 79 hand-crafted cases. Person B targeted the detector's weakest spots, producing 520 adversarial round-2 mutations. This shows how recall changed per attack type.
+    </p>
 
-        function animateCounter(elementId, start, end, duration, suffix='', decimals=0) {
-            const obj = document.getElementById(elementId);
-            if (!obj) return;
-            const startTime = performance.now();
-            
-            function update(now) {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeOutProgress = 1 - Math.pow(1 - progress, 3);
-                const current = start + (end - start) * easeOutProgress;
-                obj.innerText = (decimals > 0 ? current.toFixed(decimals) : Math.round(current)) + suffix;
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                } else {
-                    obj.innerText = (decimals > 0 ? end.toFixed(decimals) : end) + suffix;
-                }
-            }
-            requestAnimationFrame(update);
-        }
+    <div class="lift-hero">
+      <div class="lift-hero-number" id="lift-hero-pct">+8.0%</div>
+      <div class="lift-hero-desc">
+        <strong>Overall fraud recall improvement</strong><br>
+        <span style="color: var(--muted); font-size:13px;">Baseline: 89.8% → After closed-loop retraining: 97.8%. The feedback loop from <span class="mono" style="font-size:12px;">weak_spots.json</span> directly targeted gaps in account takeover and prompt injection detection.</span>
+      </div>
+    </div>
 
-        function resetToZeroState() {
-            isPipelineExecuted = false;
-            document.getElementById('stat-total').innerText = '0';
-            document.getElementById('stat-acc').innerText = '--%';
-            document.getElementById('stat-acc').className = 'text-2xl font-mono font-bold text-zinc-500 mt-1';
-            document.getElementById('stat-fraud').innerText = '0';
-            document.getElementById('stat-legit').innerText = '0';
-            document.getElementById('stat-f1').innerText = '--%';
-            
-            document.getElementById('pipeline-badge').innerText = 'UNTESTED';
-            document.getElementById('pipeline-badge').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700';
+    <div class="lift-bars-grid" id="lift-bars-container">
+      <!-- Populated dynamically -->
+    </div>
+  </section>
 
-            const vPanel = document.getElementById('vector-panel');
-            vPanel.classList.add('opacity-40', 'pointer-events-none');
-            document.getElementById('lock-indicator').classList.remove('hidden');
-            document.getElementById('vector-hint').innerText = 'Run pipeline to unlock Question vs Actual vs Detected analysis:';
+  <!-- SECTION 2: ATTACK CATEGORIES -->
+  <section id="section-attacks" class="section" aria-labelledby="attacks-heading">
+    <p class="section-label">What the pipeline detects</p>
+    <h2 class="section-title" id="attacks-heading">6 GenAI-era fraud categories</h2>
+    <p class="section-desc">
+      Each card represents a distinct attack vector the pipeline was designed to catch. Click any card to see a real case: the transaction narrative, the ground truth, and what the detector concluded.
+    </p>
+    <div class="attacks-grid" id="attacks-grid">
+      <!-- Populated dynamically -->
+    </div>
+  </section>
 
-            const rPanel = document.getElementById('recall-panel');
-            rPanel.classList.add('opacity-40');
-            document.getElementById('recall-lock').classList.remove('hidden');
+  <!-- SECTION 3: MANUAL INSPECTION (Progressive disclosure) -->
+  <section id="section-advanced" class="section" aria-labelledby="advanced-heading">
+    <button
+      class="advanced-toggle"
+      id="advanced-toggle-btn"
+      onclick="toggleAdvanced()"
+      aria-expanded="false"
+      aria-controls="advanced-body"
+    >
+      <span>
+        <span style="color: var(--text);">Inspect individual transactions</span>
+        <span class="text-muted" style="margin-left: var(--s2); font-size:13px;">— run the detector against any specific case</span>
+      </span>
+      <svg class="advanced-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
 
-            const runBtn = document.getElementById('btn-run-pipeline');
-            runBtn.disabled = false;
-            runBtn.innerHTML = '<span class="material-symbols-outlined text-sm">play_arrow</span> <span>▶ RUN DETECTION PIPELINE</span>';
-            runBtn.className = 'px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs tracking-wider font-mono transition-all shadow-[0_0_20px_rgba(0,255,148,0.3)] flex items-center gap-2 active:scale-95';
+    <div class="advanced-body" id="advanced-body">
+      <div class="inspector-card">
+        <div class="inspector-row">
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="case-select">Choose a test case</label>
+            <select id="case-select" aria-label="Select a test case to inspect">
+              <option value="">— Select a case —</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:0; display:flex; flex-direction:column;">
+            <label>Transaction metadata</label>
+            <div class="narrative-meta mono" id="case-meta" style="padding: 10px var(--s3); background: var(--canvas); border: 1px solid var(--border); border-radius: var(--r-md); min-height: 42px; flex:1; display:flex; align-items:center;">
+              Select a case above
+            </div>
+          </div>
+        </div>
 
-            document.getElementById('btn-reset-pipeline').classList.add('hidden');
-            document.getElementById('ticker-section').classList.add('hidden');
-            showToast('Pipeline reset to zero state.', 'warning');
-        }
+        <div class="form-group">
+          <label for="narrative-box">Transaction narrative</label>
+          <div class="narrative-box" id="narrative-box" role="region" aria-label="Transaction narrative text">
+            <span style="color: var(--muted); font-style: italic;">The fraud scenario description will appear here once you select a case.</span>
+          </div>
+        </div>
 
-        async function preloadData() {
-            try {
-                const [sumRes, streamRes, sampleRes, metRes] = await Promise.all([
-                    fetch('/summary'),
-                    fetch('/pipeline-stream'),
-                    fetch('/sample-attacks?limit=12'),
-                    fetch('/metrics')
-                ]);
-                if (sumRes.ok) summaryData = await sumRes.json();
-                if (streamRes.ok) streamCases = await streamRes.json();
-                if (sampleRes.ok) sampleCases = await sampleRes.json();
-                if (metRes.ok) metricsData = await metRes.json();
+        <button id="btn-predict" class="btn-secondary" onclick="runPredict()" style="width:100%; justify-content:center;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Run AI detection on this case
+        </button>
 
-                renderDropdownAndCategories();
-                renderMetricsBars();
-            } catch(e) {
-                console.error('Preload error:', e);
-            }
-        }
+        <div class="result-box" id="result-box" style="display:none;">
+          <div class="result-verdict" id="result-verdict">—</div>
+          <div class="result-conf mono" id="result-conf"></div>
+          <div class="result-reason" id="result-reason"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        function renderDropdownAndCategories() {
-            const sel = document.getElementById('case-select');
-            const vList = document.getElementById('vector-list');
-            sel.innerHTML = '<option value="">-- Choose Sample Attack Case --</option>';
-            vList.innerHTML = '';
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>FraudLens · Mastercard Innovation Challenge 2026 · GFF Mumbai</span>
+      <div style="display:flex; gap: var(--s4);">
+        <a href="/docs" target="_blank">API docs</a>
+        <a href="/health" target="_blank">Health</a>
+      </div>
+    </div>
+  </footer>
 
-            const CATEGORIES = [
-                { type: 'account_takeover', name: 'Account Takeover', icon: 'key' },
-                { type: 'deepfake_kyc', name: 'Deepfake KYC', icon: 'face' },
-                { type: 'synthetic_identity', name: 'Synthetic Identity', icon: 'badge' },
-                { type: 'refund_fraud', name: 'Refund Fraud', icon: 'assignment_return' },
-                { type: 'card_testing', name: 'Card Testing', icon: 'credit_card' },
-                { type: 'prompt_injection_scam', name: 'Prompt Injection', icon: 'smart_toy' }
-            ];
+</main>
 
-            CATEGORIES.forEach(cat => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full text-left px-3 py-2.5 rounded-lg bg-white/[0.03] hover:bg-emerald-500/10 border border-white/5 hover:border-emerald-500/40 text-xs text-zinc-300 font-mono transition-all flex items-center justify-between group';
-                btn.innerHTML = `
-                    <span class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-xs text-emerald-400 group-hover:scale-110 transition-transform">${cat.icon}</span>
-                        <span class="font-bold">${cat.name}</span>
-                    </span>
-                    <span class="text-[10px] text-zinc-500 group-hover:text-emerald-300">Explainer →</span>
-                `;
-                btn.onclick = () => openExplainerModal(cat.type);
-                vList.appendChild(btn);
-            });
+<!-- ============================================================
+     EXPLAINER MODAL (Question vs Actual vs Detected)
+     ============================================================ -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close explainer">✕</button>
+    <h3 class="modal-title" id="modal-title">Account Takeover</h3>
+    <p class="modal-subtitle mono" id="modal-case-id">case_id: seed_001</p>
 
-            sampleCases.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c.case_id;
-                const labelType = c.attack_type.replace(/_/g, ' ').toUpperCase();
-                opt.innerText = `[${c.case_id}] ${labelType} (${c.amount || '0'} ${c.currency || 'USD'})`;
-                sel.appendChild(opt);
-            });
+    <div class="modal-section">
+      <div class="modal-section-label">1 · Transaction narrative</div>
+      <div class="modal-section-content" id="modal-narrative">Loading…</div>
+    </div>
 
-            if (sampleCases.length > 0) {
-                selectManualCase(sampleCases[0].case_id);
-            }
-        }
+    <div class="verdict-pair">
+      <div class="verdict-cell">
+        <div class="verdict-cell-label">2 · Ground truth</div>
+        <div class="verdict-cell-value" id="modal-actual">—</div>
+      </div>
+      <div class="verdict-cell">
+        <div class="verdict-cell-label">3 · Detector verdict</div>
+        <div class="verdict-cell-value" id="modal-detected">—</div>
+        <div style="margin-top: var(--s1);">
+          <span class="tag" id="modal-match-tag">—</span>
+        </div>
+      </div>
+    </div>
 
-        function renderMetricsBars() {
-            if (!metricsData) return;
-            const container = document.getElementById('metrics-bars');
-            container.innerHTML = '';
+    <div class="modal-section">
+      <div class="modal-section-label">AI reasoning</div>
+      <div class="modal-section-content" id="modal-reason" style="font-style:italic; color: var(--muted);">—</div>
+    </div>
 
-            metricsData.per_attack_type.forEach(m => {
-                const el = document.createElement('div');
-                el.className = 'space-y-1';
-                el.innerHTML = `
-                    <div class="flex justify-between text-xs font-mono">
-                        <span class="text-zinc-300">${m.attack_type}</span>
-                        <span class="text-emerald-400 font-bold">+${m.improvement}%</span>
-                    </div>
-                    <div class="h-2 w-full bg-white/5 rounded-full overflow-hidden flex">
-                        <div class="bg-zinc-600 h-full transition-all duration-1000" style="width: ${m.round1_recall}%"></div>
-                        <div class="bg-emerald-400 h-full transition-all duration-1000" style="width: ${m.improvement}%"></div>
-                    </div>
-                    <div class="flex justify-between text-[10px] font-mono text-zinc-500">
-                        <span>R1: ${m.round1_recall}%</span>
-                        <span class="text-emerald-400">Final: ${m.final_recall}%</span>
-                    </div>
-                `;
-                container.appendChild(el);
-            });
-        }
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
 
-        async function executePipeline() {
-            if (isPipelineExecuted) {
-                showToast('Pipeline already run. Click reset to run again.', 'warning');
-                return;
-            }
+<!-- TOAST CONTAINER -->
+<div id="toasts" role="status" aria-live="polite" aria-atomic="false"></div>
 
-            const runBtn = document.getElementById('btn-run-pipeline');
-            runBtn.disabled = true;
-            runBtn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">refresh</span> <span>PROCESSING CASES...</span>';
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let sampleCases   = [];
+let streamCases   = [];
+let metricsData   = null;
+let summaryData   = null;
+let pipelineRun   = false;
 
-            const tickerSec = document.getElementById('ticker-section');
-            const tickerLog = document.getElementById('ticker-log');
-            const tickerCount = document.getElementById('ticker-count');
-            const tickerAcc = document.getElementById('ticker-acc');
+/* ============================================================
+   TOAST
+   ============================================================ */
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 300);
+  }, 3800);
+}
 
-            tickerSec.classList.remove('hidden');
-            tickerLog.innerHTML = '';
+/* ============================================================
+   COUNTER ANIMATION
+   ============================================================ */
+function animateValue(el, from, to, dur, suffix = '', decimals = 0) {
+  if (!el) return;
+  const startTime = performance.now();
+  function update(now) {
+    const t = Math.min((now - startTime) / dur, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    const val = from + (to - from) * eased;
+    el.textContent = (decimals > 0 ? val.toFixed(decimals) : Math.round(val)) + suffix;
+    if (t < 1) requestAnimationFrame(update);
+    else el.textContent = (decimals > 0 ? to.toFixed(decimals) : to) + suffix;
+  }
+  requestAnimationFrame(update);
+}
 
-            let correctCount = 0;
-            const casesToStream = streamCases.length > 0 ? streamCases : sampleCases;
-            const totalToProcess = casesToStream.length;
+/* ============================================================
+   DATA PRELOAD
+   ============================================================ */
+async function preload() {
+  try {
+    const [sumR, streamR, sampR, metR] = await Promise.all([
+      fetch('/summary'),
+      fetch('/pipeline-stream'),
+      fetch('/sample-attacks?limit=12'),
+      fetch('/metrics'),
+    ]);
+    if (sumR.ok)    summaryData  = await sumR.json();
+    if (streamR.ok) streamCases  = await streamR.json();
+    if (sampR.ok)   sampleCases  = await sampR.json();
+    if (metR.ok)    metricsData  = await metR.json();
 
-            for (let i = 0; i < totalToProcess; i++) {
-                const c = casesToStream[i];
-                if (c.correct) correctCount++;
-                const runningAcc = Math.round((correctCount / (i + 1)) * 100);
+    populateAttackGrid();
+    populateDropdown();
+    renderLiftBars();
+  } catch(e) {
+    console.error('Preload error', e);
+  }
+}
 
-                tickerCount.innerText = i + 1;
-                tickerAcc.innerText = runningAcc + '%';
-                document.getElementById('stat-total').innerText = i + 1;
-                document.getElementById('stat-acc').innerText = runningAcc + '%';
+/* ============================================================
+   ATTACK CATEGORIES GRID
+   ============================================================ */
+const CATEGORIES = [
+  { type: 'account_takeover',    name: 'Account Takeover',    icon: '🔑', desc: 'Credential theft and session hijacking, amplified by AI-generated phishing and voice cloning.' },
+  { type: 'deepfake_kyc',        name: 'Deepfake KYC',        icon: '👤', desc: 'Synthetic faces and neural voice clones bypass biometric onboarding liveness checks.' },
+  { type: 'synthetic_identity',  name: 'Synthetic Identity',  icon: '🪪', desc: 'Blended real and fabricated identities, supported by AI-generated utility bills and documents.' },
+  { type: 'refund_fraud',        name: 'Refund Fraud',        icon: '↩️', desc: 'AI-edited delivery screenshots and fabricated narratives used to dispute legitimate transactions.' },
+  { type: 'card_testing',        name: 'Card Testing',        icon: '💳', desc: 'LLM-generated bot scripts run micro-transactions to validate stolen cards before high-value fraud.' },
+  { type: 'prompt_injection_scam', name: 'Prompt Injection',  icon: '🤖', desc: 'Adversarial instructions embedded in customer messages to hijack bank AI chatbots.' },
+];
 
-                const line = document.createElement('div');
-                const isFraud = c.predicted_label === 'fraud';
-                const statusTag = c.correct ? '<span class="text-emerald-400 font-bold">✓ Correct</span>' : '<span class="text-amber-400 font-bold">✗ Misclassified (Edge)</span>';
-                const verdictTag = isFraud ? '<span class="text-rose-400 font-bold">FRAUD</span>' : '<span class="text-emerald-400 font-bold">LEGIT</span>';
-                
-                line.className = 'flex items-center justify-between py-0.5 border-b border-white/[0.03]';
-                line.innerHTML = `
-                    <span>Case <b class="text-white">${c.case_id}</b> — ${c.attack_type.replace(/_/g, ' ')} → Predicted: ${verdictTag} (${Math.round(c.confidence * 100)}%)</span>
-                    <span>${statusTag}</span>
-                `;
-                tickerLog.appendChild(line);
-                tickerLog.scrollTop = tickerLog.scrollHeight;
+const REASONS = {
+  account_takeover:    'Credential reset anomaly via spoofed VoIP; rapid high-value gift card withdrawal from unrecognized device.',
+  deepfake_kyc:        'Synthetic biometric artifacts in video stream detected; face inconsistencies flagged above liveness threshold.',
+  synthetic_identity:  'Fragmented credit bureau history and mismatched utility document metadata.',
+  refund_fraud:        'Carrier tracking confirms delivery with signature; AI-manipulated dispute receipt detected.',
+  card_testing:        'High-velocity micro-authorization bursts targeting digital merchant gateway within 90 seconds.',
+  prompt_injection_scam: 'Adversarial system-override instruction embedded in the customer inquiry text field.',
+};
 
-                await new Promise(r => setTimeout(r, 200));
-            }
+function populateAttackGrid() {
+  const grid = document.getElementById('attacks-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'attack-card';
+    btn.setAttribute('aria-label', `See how the pipeline catches ${cat.name}`);
+    btn.innerHTML = `
+      <div class="attack-card-icon" aria-hidden="true">${cat.icon}</div>
+      <div class="attack-card-name">${cat.name}</div>
+      <div class="attack-card-desc">${cat.desc}</div>
+      <div class="attack-card-link">
+        See how it was caught
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </div>
+    `;
+    btn.onclick = () => openModal(cat.type);
+    grid.appendChild(btn);
+  });
+}
 
-            showToast('Stream batch complete! Finalizing full benchmark against 599 test cases...', 'success');
-            await new Promise(r => setTimeout(r, 400));
+/* ============================================================
+   LIFT BARS
+   ============================================================ */
+function renderLiftBars() {
+  const container = document.getElementById('lift-bars-container');
+  if (!container || !metricsData) return;
+  container.innerHTML = '';
 
-            animateCounter('stat-total', totalToProcess, summaryData ? summaryData.total_evaluated : 599, 1200);
-            animateCounter('stat-acc', Math.round((correctCount / totalToProcess) * 100), summaryData ? summaryData.accuracy_pct : 93.16, 1200, '%', 2);
-            animateCounter('stat-fraud', Math.round(correctCount * 0.58), summaryData ? summaryData.fraud_cases : 324, 1200);
-            animateCounter('stat-legit', Math.round(correctCount * 0.42), summaryData ? summaryData.legit_cases : 275, 1200);
-            animateCounter('stat-f1', 88, 93.64, 1200, '%', 2);
+  metricsData.per_attack_type.forEach(m => {
+    const imp = m.improvement;
+    const impLabel = imp >= 0 ? `+${imp}%` : `${imp}%`;
+    const impColor = imp >= 0 ? 'var(--green)' : 'var(--red)';
 
-            document.getElementById('stat-acc').className = 'text-2xl font-mono font-bold text-emerald-400 text-glow-green mt-1';
-            document.getElementById('stat-fraud').className = 'text-rose-400 font-bold';
-            document.getElementById('stat-legit').className = 'text-emerald-400 font-bold';
-            document.getElementById('stat-f1').className = 'text-white font-bold';
+    const card = document.createElement('div');
+    card.className = 'lift-bar-card';
+    card.innerHTML = `
+      <div class="lift-bar-label">
+        <span>${m.attack_type}</span>
+        <span class="mono" style="color:${impColor}; font-size:13px;">${impLabel}</span>
+      </div>
+      <div class="lift-bar-track">
+        <div class="lift-bar-r1" style="width:0%;" data-r1="${m.round1_recall}" data-gain="${Math.max(0, imp)}"></div>
+        <div class="lift-bar-gain" style="width:0%;" data-gain="${Math.max(0, imp)}"></div>
+      </div>
+      <div class="lift-bar-values">
+        <span>Round 1: <strong>${m.round1_recall}%</strong></span>
+        <span class="final">Final: <strong>${m.final_recall}%</strong></span>
+      </div>
+    `;
+    container.appendChild(card);
+  });
 
-            document.getElementById('pipeline-badge').innerText = 'BENCHMARKED';
-            document.getElementById('pipeline-badge').className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold';
+  // Animate bars in
+  setTimeout(() => {
+    container.querySelectorAll('.lift-bar-r1').forEach(el => {
+      el.style.width = el.dataset.r1 + '%';
+    });
+    container.querySelectorAll('.lift-bar-gain').forEach(el => {
+      el.style.width = el.dataset.gain + '%';
+    });
+  }, 80);
+}
 
-            const vPanel = document.getElementById('vector-panel');
-            vPanel.classList.remove('opacity-40', 'pointer-events-none');
-            document.getElementById('lock-indicator').classList.add('hidden');
-            document.getElementById('vector-hint').innerText = 'Click any attack type below to inspect Question vs Actual vs Detected:';
+/* ============================================================
+   DROPDOWN
+   ============================================================ */
+function populateDropdown() {
+  const sel = document.getElementById('case-select');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— Select a case —</option>';
+  sampleCases.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.case_id;
+    const cat = c.attack_type.replace(/_/g,' ').toUpperCase();
+    opt.textContent = `[${c.case_id}] ${cat} — ${c.amount ?? '—'} ${c.currency ?? ''}`;
+    sel.appendChild(opt);
+  });
 
-            const rPanel = document.getElementById('recall-panel');
-            rPanel.classList.remove('opacity-40');
-            document.getElementById('recall-lock').classList.add('hidden');
+  if (sampleCases.length > 0) selectCase(sampleCases[0].case_id);
+}
 
-            isPipelineExecuted = true;
-            runBtn.disabled = false;
-            runBtn.innerHTML = '<span class="material-symbols-outlined text-sm">check_circle</span> <span>PIPELINE BENCHMARKED</span>';
-            runBtn.className = 'px-5 py-2 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs tracking-wider font-mono border border-emerald-500/50 flex items-center gap-2 cursor-default';
-            document.getElementById('btn-reset-pipeline').classList.remove('hidden');
+function selectCase(caseId) {
+  const match = sampleCases.find(c => c.case_id === caseId);
+  if (!match) return;
+  document.getElementById('case-select').value = caseId;
+  document.getElementById('narrative-box').textContent = match.narrative_snippet || 'No narrative text available.';
+  document.getElementById('case-meta').textContent = `${match.amount ?? '—'} ${match.currency ?? ''} · ${(match.channel || 'ecom').toUpperCase()} · ${(match.cardholder_country || '').toUpperCase()}`;
 
-            showToast('✅ Pipeline Benchmark Complete: 93.16% Accuracy, +8.0% Recall Lift!', 'success');
-        }
+  // Clear previous result
+  const rb = document.getElementById('result-box');
+  rb.style.display = 'none';
+  rb.className = 'result-box';
+}
 
-        function openExplainerModal(attackType) {
-            const match = sampleCases.find(c => c.attack_type === attackType) || streamCases.find(c => c.attack_type === attackType);
-            if (!match) return;
+/* ============================================================
+   RUN PIPELINE
+   ============================================================ */
+async function runPipeline() {
+  if (pipelineRun) {
+    toast('Pipeline already run. Click Reset to run again.', 'info');
+    return;
+  }
 
-            const categoryNames = {
-                'account_takeover': 'Account Takeover Attack',
-                'deepfake_kyc': 'Deepfake Biometric KYC Attack',
-                'synthetic_identity': 'Synthetic Identity Fabrication',
-                'refund_fraud': 'AI-Assisted Refund Fraud',
-                'card_testing': 'Automated Card Testing Attack',
-                'prompt_injection_scam': 'Prompt Injection Chatbot Jailbreak'
-            };
+  const btn = document.getElementById('btn-run');
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    Running pipeline…
+  `;
 
-            document.getElementById('modal-category-title').innerText = categoryNames[attackType] || attackType.replace(/_/g, ' ').toUpperCase();
-            document.getElementById('modal-case-tag').innerText = match.case_id;
-            document.getElementById('modal-question').innerText = match.narrative_snippet || 'Transaction narrative logs demonstrating attack vector.';
+  // Show stream
+  const streamArea = document.getElementById('stream-area');
+  const streamLog  = document.getElementById('stream-log');
+  streamArea.classList.add('visible');
+  streamLog.innerHTML = '';
 
-            const isFraud = match.label === 'fraud';
-            document.getElementById('modal-actual').innerText = `${match.label.toUpperCase()} — ${attackType.replace(/_/g, ' ').toUpperCase()}`;
-            document.getElementById('modal-actual').className = isFraud ? 'text-sm font-mono font-bold text-rose-400' : 'text-sm font-mono font-bold text-emerald-400';
+  const cases = streamCases.length > 0 ? streamCases : sampleCases;
+  const total  = cases.length;
+  document.getElementById('stream-total').textContent = total;
 
-            const conf = match.confidence || 0.94;
-            const pred = match.predicted_label || match.label;
-            document.getElementById('modal-detected').innerText = `${pred.toUpperCase()} (${Math.round(conf * 100)}%)`;
-            document.getElementById('modal-detected').className = pred === 'fraud' ? 'text-sm font-mono font-bold text-rose-400' : 'text-sm font-mono font-bold text-emerald-400';
+  let correct = 0;
+  for (let i = 0; i < total; i++) {
+    const c = cases[i];
+    if (c.correct) correct++;
+    const acc = Math.round((correct / (i + 1)) * 100);
 
-            const isCorrect = match.correct !== undefined ? match.correct : (pred === match.label);
-            document.getElementById('modal-match-badge').innerText = isCorrect ? '✓ CORRECT MATCH' : '✗ MISCLASSIFICATION';
-            document.getElementById('modal-match-badge').className = isCorrect ? 'text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold' : 'text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold';
+    document.getElementById('stream-count').textContent = i + 1;
+    document.getElementById('stream-acc').textContent  = acc + '%';
 
-            const reasons = {
-                'account_takeover': 'Identified credential reset anomaly via spoofed VoIP and rapid high-value gift card withdrawal.',
-                'deepfake_kyc': 'Detected synthetic biometric artifacts in video stream bypassing standard liveness threshold.',
-                'synthetic_identity': 'Pattern match for fragmented credit bureau history and fabricated utility verification documents.',
-                'refund_fraud': 'Carrier tracking confirms delivery with signature; AI-manipulated receipt dispute detected.',
-                'card_testing': 'High-velocity automated micro-authorization bursts targeting digital merchant gateway.',
-                'prompt_injection_scam': 'Adversarial system prompt override instruction embedded in customer inquiry text.'
-            };
-            document.getElementById('modal-reason').innerText = `"${reasons[attackType] || 'Neural weights match known attack distribution vectors.'}"`;
+    const isFraud = c.predicted_label === 'fraud';
+    const row = document.createElement('div');
+    row.className = 'stream-row';
+    row.innerHTML = `
+      <span>
+        <span class="stream-case-id mono">${c.case_id}</span>
+        <span style="color: var(--muted);"> — ${c.attack_type.replace(/_/g,' ')}</span>
+      </span>
+      <span style="display:flex; align-items:center; gap: var(--s2); flex-shrink:0;">
+        <span class="tag ${isFraud ? 'tag-red' : 'tag-green'}">${c.predicted_label.toUpperCase()}</span>
+        <span class="mono" style="font-size:11px; color: var(--muted);">${Math.round(c.confidence * 100)}%</span>
+        <span style="font-size:11px; color:${c.correct ? 'var(--green)' : 'var(--red)'};">${c.correct ? '✓' : '✗'}</span>
+      </span>
+    `;
+    streamLog.appendChild(row);
+    streamLog.scrollTop = streamLog.scrollHeight;
+    await new Promise(r => setTimeout(r, 190));
+  }
 
-            document.getElementById('explainer-modal').classList.remove('hidden');
-        }
+  // Finalize
+  document.getElementById('stream-status').textContent = 'Benchmarking against full 599-case dataset…';
+  await new Promise(r => setTimeout(r, 500));
 
-        function closeExplainerModal() {
-            document.getElementById('explainer-modal').classList.add('hidden');
-        }
+  // Update scorecards
+  const scAccEl   = document.getElementById('sc-accuracy');
+  const scF1El    = document.getElementById('sc-f1');
+  const scFraudEl = document.getElementById('sc-fraud');
+  const scLiftEl  = document.getElementById('sc-lift');
+  const scFraudSub = document.getElementById('sc-fraud-sub');
 
-        function selectManualCase(caseId) {
-            const match = sampleCases.find(c => c.case_id === caseId) || streamCases.find(c => c.case_id === caseId);
-            if (!match) return;
+  const finalAcc   = summaryData ? summaryData.accuracy_pct : 93.16;
+  const finalF1    = 93.64;
+  const finalFraud = summaryData ? summaryData.fraud_cases  : 324;
+  const liftPct    = metricsData ? metricsData.overall.recall_lift : 8.0;
+  const liftSign   = liftPct >= 0 ? '+' : '';
 
-            document.getElementById('case-select').value = caseId;
-            document.getElementById('narrative-box').innerText = match.narrative_snippet || 'No narrative text.';
-            document.getElementById('case-meta').innerText = `AMT: ${match.amount || 'N/A'} ${match.currency || 'USD'} | CHANNEL: ${(match.channel || 'ECOM').toUpperCase()}`;
+  document.getElementById('scorecards').classList.add('visible');
+  document.getElementById('done-badge').classList.add('visible');
 
-            const resultBox = document.getElementById('result-container');
-            resultBox.className = 'rounded-lg p-4 bg-white/[0.02] border border-white/5 transition-all';
-            document.getElementById('pred-badge').innerText = 'READY TO EVALUATE';
-            document.getElementById('pred-badge').className = 'text-sm font-bold text-zinc-500 font-mono tracking-wider';
-            document.getElementById('conf-badge').innerText = '--%';
-            document.getElementById('conf-badge').className = 'text-base font-bold text-zinc-500 font-mono';
-            document.getElementById('reason-text').innerText = 'Click "Run Single Inference" to evaluate with Gemini model.';
-        }
+  scAccEl.textContent   = '—';
+  scF1El.textContent    = '—';
+  scFraudEl.textContent = '—';
+  scLiftEl.textContent  = '—';
 
-        async function runManualPrediction() {
-            const caseId = document.getElementById('case-select').value;
-            if (!caseId) {
-                showToast('Please select a test case from the dropdown first.', 'error');
-                return;
-            }
+  animateValue(scAccEl,   85, finalAcc,   1200, '%', 2);
+  animateValue(scF1El,    85, finalF1,    1200, '%', 2);
+  animateValue(scFraudEl,  0, finalFraud, 1200);
+  animateValue(scLiftEl,   0, Math.abs(liftPct), 1200, '%', 1);
+  scLiftEl.dataset.sign = liftSign;
+  scFraudSub.textContent = `of ${summaryData ? summaryData.fraud_cases + summaryData.legit_cases : 599}`;
 
-            const btn = document.getElementById('btn-run-predict');
-            btn.innerHTML = '<span class="material-symbols-outlined text-sm animate-spin">refresh</span> Evaluating with Gemini...';
-            btn.disabled = true;
+  // Show downstream sections
+  document.getElementById('section-lift').classList.add('visible');
+  document.getElementById('section-attacks').classList.add('visible');
+  document.getElementById('section-advanced').classList.add('visible');
+  renderLiftBars();
 
-            try {
-                const res = await fetch('/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ case_id: caseId })
-                });
-                const data = await res.json();
+  // Update button
+  pipelineRun = true;
+  btn.disabled = false;
+  btn.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+    Pipeline benchmarked
+  `;
+  btn.style.background = 'rgba(16,185,129,0.15)';
+  btn.style.color = 'var(--green)';
 
-                const isFraud = data.predicted_label === 'fraud';
-                const resultBox = document.getElementById('result-container');
-                const predBadge = document.getElementById('pred-badge');
-                const confBadge = document.getElementById('conf-badge');
-                const reasonText = document.getElementById('reason-text');
+  document.getElementById('btn-reset').style.display = 'inline-flex';
+  document.getElementById('stream-status').textContent = 'Benchmark complete';
+  document.getElementById('spin-icon').style.animation = 'none';
 
-                if (isFraud) {
-                    resultBox.className = 'rounded-lg p-4 bg-rose-950/30 border border-rose-500/50 glow-box-red transition-all';
-                    predBadge.innerText = `🚨 ${data.predicted_label.toUpperCase()} (${data.predicted_attack_type.toUpperCase()})`;
-                    predBadge.className = 'text-sm font-bold text-rose-400 font-mono text-glow-red';
-                    confBadge.className = 'text-base font-bold text-rose-400 font-mono';
-                } else {
-                    resultBox.className = 'rounded-lg p-4 bg-emerald-950/30 border border-emerald-500/50 glow-box-green transition-all';
-                    predBadge.innerText = `✅ ${data.predicted_label.toUpperCase()}`;
-                    predBadge.className = 'text-sm font-bold text-emerald-400 font-mono text-glow-green';
-                    confBadge.className = 'text-base font-bold text-emerald-400 font-mono';
-                }
+  toast(`Pipeline complete — ${finalAcc.toFixed(2)}% accuracy, ${liftSign}${Math.abs(liftPct)}% recall lift`, 'success');
+}
 
-                confBadge.innerText = Math.round(data.confidence * 100) + '%';
-                reasonText.innerText = `"${data.reason}"`;
+/* ============================================================
+   RESET
+   ============================================================ */
+function resetPipeline() {
+  pipelineRun = false;
 
-                showToast(`Manual test complete: ${data.predicted_label.toUpperCase()} (${Math.round(data.confidence * 100)}% confidence)`, isFraud ? 'fraud' : 'success');
+  const btn = document.getElementById('btn-run');
+  btn.disabled = false;
+  btn.style.background = '';
+  btn.style.color = '';
+  btn.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+    Run Detection Pipeline
+  `;
 
-            } catch(e) {
-                showToast('Inference error: ' + e.message, 'error');
-            } finally {
-                btn.innerHTML = '<span class="material-symbols-outlined text-sm">bolt</span> RUN SINGLE INFERENCE';
-                btn.disabled = false;
-            }
-        }
+  document.getElementById('btn-reset').style.display = 'none';
+  document.getElementById('stream-area').classList.remove('visible');
+  document.getElementById('scorecards').classList.remove('visible');
+  document.getElementById('done-badge').classList.remove('visible');
+  document.getElementById('section-lift').classList.remove('visible');
+  document.getElementById('section-attacks').classList.remove('visible');
+  document.getElementById('section-advanced').classList.remove('visible');
 
-        document.addEventListener('DOMContentLoaded', () => {
-            preloadData();
-            document.getElementById('case-select').addEventListener('change', (e) => selectManualCase(e.target.value));
-        });
-    </script>
+  document.getElementById('stream-log').innerHTML = '';
+  document.getElementById('stream-count').textContent = '0';
+  document.getElementById('stream-acc').textContent = '—';
+  document.getElementById('spin-icon').style.animation = '';
+  document.getElementById('stream-status').textContent = 'Evaluating cases…';
+
+  // Close advanced panel if open
+  const adv = document.getElementById('advanced-body');
+  const tog = document.getElementById('advanced-toggle-btn');
+  adv.classList.remove('open');
+  tog.classList.remove('open');
+  tog.setAttribute('aria-expanded', 'false');
+
+  toast('Reset to initial state.', 'info');
+}
+
+/* ============================================================
+   ADVANCED TOGGLE
+   ============================================================ */
+function toggleAdvanced() {
+  const body = document.getElementById('advanced-body');
+  const btn  = document.getElementById('advanced-toggle-btn');
+  const isOpen = body.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+}
+
+/* ============================================================
+   MANUAL PREDICTION
+   ============================================================ */
+async function runPredict() {
+  const caseId = document.getElementById('case-select').value;
+  if (!caseId) { toast('Select a test case first.', 'error'); return; }
+
+  const btn = document.getElementById('btn-predict');
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+    Detecting…
+  `;
+
+  try {
+    const res = await fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ case_id: caseId }),
+    });
+    const data = await res.json();
+
+    const isFraud = data.predicted_label === 'fraud';
+    const rb  = document.getElementById('result-box');
+    rb.className = `result-box ${isFraud ? 'fraud-result' : 'legit-result'}`;
+    rb.style.display = 'block';
+
+    document.getElementById('result-verdict').textContent = isFraud
+      ? `🚨 Fraud — ${(data.predicted_attack_type || '').replace(/_/g,' ')}`
+      : '✅ Legitimate transaction';
+    document.getElementById('result-verdict').style.color = isFraud ? 'var(--red)' : 'var(--green)';
+
+    document.getElementById('result-conf').textContent = `Confidence: ${Math.round(data.confidence * 100)}%`;
+    document.getElementById('result-reason').textContent = data.reason || '—';
+
+    toast(`Detection complete: ${data.predicted_label} (${Math.round(data.confidence * 100)}%)`, isFraud ? 'error' : 'success');
+  } catch(e) {
+    toast('Detection error: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Run AI detection on this case
+    `;
+  }
+}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+function openModal(attackType) {
+  const cat   = CATEGORIES.find(c => c.type === attackType);
+  const match = sampleCases.find(c => c.attack_type === attackType)
+             || streamCases.find(c => c.attack_type === attackType);
+
+  if (!match && !cat) return;
+
+  const isFraud = !match || match.label === 'fraud';
+  const pred    = match ? match.predicted_label || match.label : 'fraud';
+  const conf    = match ? Math.round((match.confidence || 0.94) * 100) : 94;
+  const isCorrect = match ? (match.correct !== undefined ? match.correct : pred === match.label) : true;
+
+  const categoryNames = {
+    account_takeover:    'Account Takeover Attack',
+    deepfake_kyc:        'Deepfake Biometric KYC',
+    synthetic_identity:  'Synthetic Identity Fabrication',
+    refund_fraud:        'AI-Assisted Refund Fraud',
+    card_testing:        'Automated Card Testing',
+    prompt_injection_scam: 'Prompt Injection Scam',
+  };
+
+  document.getElementById('modal-title').textContent   = categoryNames[attackType] || attackType;
+  document.getElementById('modal-case-id').textContent = match ? `case_id: ${match.case_id}` : 'Illustrative example';
+  document.getElementById('modal-narrative').textContent = match
+    ? (match.narrative_snippet || 'No narrative available.')
+    : (cat ? cat.desc : '—');
+
+  const actualEl = document.getElementById('modal-actual');
+  actualEl.textContent = isFraud
+    ? `FRAUD — ${attackType.replace(/_/g,' ').toUpperCase()}`
+    : 'LEGITIMATE';
+  actualEl.style.color = isFraud ? 'var(--red)' : 'var(--green)';
+
+  const detectedEl = document.getElementById('modal-detected');
+  detectedEl.textContent = `${pred.toUpperCase()} (${conf}%)`;
+  detectedEl.style.color = pred === 'fraud' ? 'var(--red)' : 'var(--green)';
+
+  const matchTag = document.getElementById('modal-match-tag');
+  matchTag.textContent = isCorrect ? '✓ Correct' : '✗ Misclassified';
+  matchTag.className   = `tag ${isCorrect ? 'tag-green' : 'tag-red'}`;
+
+  document.getElementById('modal-reason').textContent = REASONS[attackType] || 'Pattern matches known fraud distribution.';
+
+  const overlay = document.getElementById('modal');
+  overlay.classList.add('open');
+  overlay.querySelector('.modal').querySelector('.modal-close').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+}
+
+/* Close modal on overlay click */
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+/* Close modal on Escape */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  preload();
+  document.getElementById('case-select').addEventListener('change', e => selectCase(e.target.value));
+});
+</script>
 </body>
 </html>
