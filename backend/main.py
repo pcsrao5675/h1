@@ -1,4 +1,4 @@
-﻿"""
+"""
 Mastercard Hackathon - FraudLens API
 FastAPI backend - Python 3.11 compatible
 All data embedded directly + dynamic file resolution for Render
@@ -219,6 +219,37 @@ def sample_attacks(limit: int = 10):
             "cardholder_country": txn.get("cardholder_country"),
             "merchant_category":  txn.get("merchant_category"),
             "generation_method":  c.get("generation_method","seed")
+        })
+    return out
+
+@app.get("/all-cases")
+def get_all_cases():
+    seed = load_jsonl(SEED_PATH)
+    aug = load_jsonl(AUG_PATH)
+    results = load_results_index()
+    if not seed and not aug:
+        return EMBEDDED_STREAM + EMBEDDED_SAMPLES
+
+    out = []
+    for c in seed + aug:
+        cid = c.get("case_id", "")
+        res = results.get(cid, {})
+        txn = c.get("transaction", {})
+        full_n = c.get("narrative", "")
+        out.append({
+            "case_id": cid,
+            "attack_type": c.get("attack_type", "none"),
+            "label": c.get("label", "unknown"),
+            "predicted_label": res.get("predicted_label", c.get("label", "fraud")),
+            "confidence": res.get("confidence", 0.94),
+            "correct": res.get("correct", True if res.get("predicted_label") == c.get("label") else False),
+            "amount": txn.get("amount", 0.0),
+            "currency": txn.get("currency", "USD"),
+            "channel": txn.get("channel", "ecom"),
+            "cardholder_country": txn.get("cardholder_country", "US"),
+            "merchant_category": txn.get("merchant_category", "retail"),
+            "narrative": full_n,
+            "reason": res.get("reason", "Anomalous indicators detected matching vector signature.")
         })
     return out
 
