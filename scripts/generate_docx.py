@@ -151,8 +151,11 @@ def create_document():
     doc.add_heading('8. Conclusion', level=1)
     doc.add_paragraph('FraudLens fulfills all three requirements of the Mastercard Innovation Challenge 2026. By combining comprehensive attack identification, high-fidelity synthetic simulation, and an adaptive closed-loop defense pipeline, FraudLens provides financial institutions with a proactive, self-hardening security posture against the evolving landscape of GenAI payment fraud.')
     
-    doc.save('/home/harsha/Documents/MasterCard-Hackathon/FraudLens_Solution_Walkthrough.docx')
-    print('FraudLens_Solution_Walkthrough.docx created successfully!')
+    import os
+    out_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    out_path = os.path.join(out_dir, 'FraudLens_Solution_Walkthrough.docx')
+    doc.save(out_path)
+    print(f'Saved: {out_path}')
 
 if __name__ == '__main__':
     create_document()
