@@ -47,7 +47,7 @@ The same loop runs forward and backward: detector false-negatives from round 1 (
 The closed-loop dashboard is deployed as a FastAPI service on Render:
 **https://fraudlens.onrender.com/**
 
-The prototype shows a 3-panel operational view: live pipeline ticker, case browser, and detector playground, plus a metrics view that surfaces the closed-loop recall lift.
+The prototype shows a 4-panel operational view: Overview & Benchmark, Case Explorer (599) with side-by-side ground truth vs AI detection, Test Custom Scenario sandbox, and Attack Vectors taxonomy.
 
 ## Quickstart
 
@@ -55,7 +55,7 @@ The prototype shows a 3-panel operational view: live pipeline ticker, case brows
 # 1. Install
 pip install -r requirements.txt
 
-# 2. Set up API keys (Gemini)
+# 2. Set up API keys
 cp .env.example .env
 # edit .env and add GEMINI_API_KEY_1 (or more, up to 3)
 
@@ -75,12 +75,12 @@ uvicorn backend.main:app --reload
 
 | File | Role |
 | :--- | :--- |
-| `generate_seed_attacks.py` | **Person A** — Gemini-driven seed generator (79 cases across 6 attack types) |
+| `generate_seed_attacks.py` | **Person A** — seed generator (79 cases across 6 attack types) |
 | `scale_up_dataset.py` | **Person B** — round-2 adversarial augmenter (consumes `weak_spots.json`) |
-| `detector.py` | **Person C** — fraud detector (Gemini, multi-key, fallback) |
+| `detector.py` | **Person C** — fraud detector (multi-key rotation, fallback) |
 | `evaluate.py` | Person C — accuracy / precision / recall / F1 / confusion-matrix report |
 | `find_weak_spots.py` | Person C — exports false-negatives to `weak_spots.json` for the next round |
-| `compare_rounds.py` | Person C — round-1 vs round-2 recall-lift report (the closed-loop number) |
+| `compare_rounds.py` | Person C — round-1 vs round-2 recall-lift report (the closed-loop proof) |
 | `seed_dataset.jsonl` | 79 hand-curated seed cases |
 | `augmented_dataset.jsonl` | 520 augmented round-2 cases |
 | `detection_results.jsonl` | detector output (one row per case) |
@@ -88,9 +88,8 @@ uvicorn backend.main:app --reload
 | `metrics_report_final.json` | computed metrics for the prototype and walkthrough |
 | `round_comparison_report.md` | round-1 → round-2 recall-lift table |
 | `evaluation_report.md` | full per-class metrics, confusion matrix, error analysis |
-| `backend/` | FastAPI prototype (Stitch-style dashboard, served from `index.html`) |
-| `walkthrough.docx` | judges' writeup (see `submission/`) |
-| `submission/` | submission package — `walkthrough.docx`, `solution-summary.md`, screenshots, links |
+| `backend/` | FastAPI prototype (served from `backend/index.html`) |
+| `FraudLens_Solution_Walkthrough.docx` | Official Solution Walkthrough for Mastercard Challenge judges |
 
 ## Headline numbers
 
